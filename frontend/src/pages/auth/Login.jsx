@@ -21,7 +21,7 @@ function Login() {
 
   return (
     <div className="auth-page">
-      
+    
       <div className="auth-left">
         <div className="brand">
           <div className="logo">BT</div>
@@ -57,7 +57,7 @@ function Login() {
         </div>
       </div>
 
-
+    
       <div className="auth-right">
         <div className="auth-card">
           <div className="mobile-brand">
@@ -109,7 +109,6 @@ function Login() {
               </div>
             </div>
 
-           
             <div className="form-options">
               <label className="checkbox-container">
                 <input
@@ -117,11 +116,10 @@ function Login() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span className="checkmark"></span>
                 Remember me
               </label>
 
-              <Link to="/forgot-password" class="forgot-link">
+              <Link to="/forgot-password" className="forgot-link">
                 Forgot password?
               </Link>
             </div>

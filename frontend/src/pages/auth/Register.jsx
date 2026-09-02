@@ -18,7 +18,6 @@ function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  
 
   const handleChange = (e) => {
     setFormData({
@@ -28,41 +27,41 @@ function Register() {
     if (error) setError(""); 
   };
 
- const handleRegister = async (e) => {
-  e.preventDefault();
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    alert("Passwords do not match");
-    return;
-  }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
-  try {
-    const response = await API.post("/auth/register", {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      role: formData.role,
-    });
+    setIsLoading(true);
 
-    console.log("Registration successful:", response.data);
+    try {
+      const response = await API.post("/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      });
 
-    alert("Account created successfully!");
-
-    
-    navigate("/login");
-  } catch (error) {
-    console.error(error);
-
-    alert(
-      error.response?.data?.message ||
-        "Registration failed. Please try again."
-    );
-  }
-};
+      console.log("Registration successful:", response.data);
+      alert("Account created successfully!");
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="auth-page">
-      
+ 
       <div className="auth-left">
         <div className="brand">
           <div className="logo">BT</div>
@@ -98,7 +97,7 @@ function Register() {
         </div>
       </div>
 
-      
+     
       <div className="auth-right">
         <div className="auth-card register-card">
           <div className="mobile-brand">

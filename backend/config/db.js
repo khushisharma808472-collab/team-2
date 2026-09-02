@@ -1,16 +1,22 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
+  const mongoUri = process.env.MONGO_URI;
+
+  if (!mongoUri) {
+    throw new Error("MONGO_URI is missing. Add it to backend/.env.");
+  }
+
   try {
-    const connection = await mongoose.connect(process.env.MONGO_URI);
-
-    console.log(
-      `MongoDB Connected: ${connection.connection.host}`
-    );
+    await mongoose.connect(mongoUri);
+    console.log("MongoDB connected successfully.");
   } catch (error) {
-    console.error("MongoDB Connection Error:", error.message);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const safeMessage = message
+      .replace(/(mongodb(?:\+srv)?:\/\/)[^@\s]+@/i, "$1<redacted>@")
+      .replace(/(password=)[^&\s]+/gi, "$1<redacted>");
 
-    process.exit(1);
+    throw new Error(`MongoDB connection failed: ${safeMessage}`);
   }
 };
 
