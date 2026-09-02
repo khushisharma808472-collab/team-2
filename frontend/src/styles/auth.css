@@ -442,3 +442,15 @@ form {
   background-color: #ffffff;
   box-shadow: 0 0 0 4px var(--primary-light);
 }
+.login-error {
+  background: #fef2f2;
+  color: #dc2626;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  padding: 10px 12px;
+  margin-bottom: 18px;
+
+  font-size: 13px;
+}
