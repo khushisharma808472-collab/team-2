@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import API from "../../services/api";
 import "../../styles/auth.css";
 
 function ForgotPassword() {
@@ -7,18 +8,30 @@ function ForgotPassword() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!email) {
+      setMessage("Please enter your email address.");
+      return;
+    }
 
-    // Simulate async recovery instruction dispatch
-    setTimeout(() => {
-      console.log("Reset password requested for:", email);
+    setIsLoading(true);
+    setMessage("");
+
+    try {
+      const response = await API.post("/auth/forgot-password", { email });
       setMessage(
-        "If an account exists with this email, password reset instructions have been sent."
+        response.data.message ||
+          "Password reset instructions have been generated."
       );
+    } catch (err) {
+      setMessage(
+        err.response?.data?.message ||
+          "Failed to process request. Please check your email."
+      );
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (

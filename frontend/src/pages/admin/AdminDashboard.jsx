@@ -12,6 +12,21 @@ import QuickActions from "../../components/dashboard/QuickActions";
 import "../../styles/dashboard.css";
 
 function AdminDashboard() {
+  const getUserName = () => {
+    try {
+      const storedUser =
+        localStorage.getItem("user") || sessionStorage.getItem("user");
+      const user = storedUser ? JSON.parse(storedUser) : null;
+      if (user && user.role === "admin" && user.name) {
+        return user.name;
+      }
+    } catch {
+      // fallback
+    }
+    return "Admin";
+  };
+  const userName = getUserName();
+
   return (
     <div className="dashboard-layout">
 
@@ -26,7 +41,7 @@ function AdminDashboard() {
           {/* Welcome Section */}
           <div className="welcome-section">
             <div>
-              <h1>Welcome back, Admin! 👋</h1>
+              <h1>Welcome back, {userName}! 👋</h1>
               <p>Here's an overview of the system and all projects.</p>
             </div>
 

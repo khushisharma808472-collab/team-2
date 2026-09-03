@@ -1,13 +1,15 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+
+// Load environment variables reliably regardless of cwd
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-
-dotenv.config();
 
 const app = express();
 
@@ -16,7 +18,9 @@ app.use(cors());
 app.use(express.json());
 
 // Database
-connectDB();
+connectDB().catch((err) => {
+  console.error("Database connection error:", err.message);
+});
 
 // Test Route
 app.get("/", (req, res) => {

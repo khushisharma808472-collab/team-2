@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import API from "../../services/api";
 import "../../styles/auth.css";
 
 function ResetPassword() {
@@ -14,7 +15,7 @@ function ResetPassword() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -23,22 +24,37 @@ function ResetPassword() {
       return;
     }
 
+    if (password.length < 6) {
+      setMessage("Password must be at least 6 characters long");
+      setIsSuccess(false);
+      return;
+    }
+
     setIsLoading(true);
     setMessage("");
 
-    // Simulate backend connection latency
-    setTimeout(() => {
-      console.log("Reset Token:", token);
-      console.log("New Password:", password);
+    try {
+      const response = await API.put(`/auth/reset-password/${token}`, {
+        password,
+      });
 
       setIsSuccess(true);
-      setMessage("Password reset successfully! Redirecting...");
-      setIsLoading(false);
+      setMessage(
+        response.data.message || "Password reset successfully! Redirecting..."
+      );
 
       setTimeout(() => {
         navigate("/login");
       }, 2000);
-    }, 800);
+    } catch (err) {
+      setIsSuccess(false);
+      setMessage(
+        err.response?.data?.message ||
+          "Invalid or expired reset token. Please request a new link."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

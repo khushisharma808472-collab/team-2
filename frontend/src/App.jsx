@@ -6,6 +6,10 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProjectManagerDashboard from "./pages/projectManager/ProjectManagerDashboard";
+import SiteEngineerDashboard from "./pages/siteEngineer/SiteEngineerDashboard";
+import ContractorDashboard from "./pages/contractor/ContractorDashboard";
+import ClientDashboard from "./pages/client/ClientDashboard";
+import WorkerDashboard from "./pages/worker/WorkerDashboard";
 
 function App() {
   return (
@@ -24,16 +28,31 @@ function App() {
           element={<ResetPassword />}
         />
 
-        {/* Admin */}
+        {/* Dashboards by Role */}
         <Route
           path="/admin/dashboard"
           element={<AdminDashboard />}
         />
-
-         <Route
-    path="/project-manager/dashboard"
-    element={<ProjectManagerDashboard />}
-  />
+        <Route
+          path="/project-manager/dashboard"
+          element={<ProjectManagerDashboard />}
+        />
+        <Route
+          path="/site-engineer/dashboard"
+          element={<SiteEngineerDashboard />}
+        />
+        <Route
+          path="/contractor/dashboard"
+          element={<ContractorDashboard />}
+        />
+        <Route
+          path="/client/dashboard"
+          element={<ClientDashboard />}
+        />
+        <Route
+          path="/worker/dashboard"
+          element={<WorkerDashboard />}
+        />
       </Routes>
     </BrowserRouter>
   );
