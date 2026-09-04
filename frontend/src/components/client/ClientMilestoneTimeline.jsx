@@ -1,6 +1,8 @@
 import { CheckCircle2, Clock, Calendar, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const milestones = [
+
   {
     phase: "Phase 1: Foundation & Earthwork",
     date: "Completed Jan 2026",
@@ -39,6 +41,8 @@ const milestones = [
 ];
 
 function ClientMilestoneTimeline() {
+  const navigate = useNavigate();
+
   return (
     <div className="dashboard-card client-milestones-card">
       <div className="card-header">
@@ -85,8 +89,12 @@ function ClientMilestoneTimeline() {
         ))}
       </div>
 
-      <button className="view-projects-btn" style={{ marginTop: "14px" }}>
-        <span>Download Detailed Milestone Schedule</span>
+      <button
+        className="view-projects-btn"
+        style={{ marginTop: "14px" }}
+        onClick={() => navigate("/client/milestones")}
+      >
+        <span>View Full Milestone Roadmap</span>
         <ArrowRight size={14} />
       </button>
     </div>
@@ -94,4 +102,5 @@ function ClientMilestoneTimeline() {
 }
 
 export default ClientMilestoneTimeline;
+
 

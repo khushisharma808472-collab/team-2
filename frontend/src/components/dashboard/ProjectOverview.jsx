@@ -5,6 +5,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ChevronDown, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const data = [
   { name: "On Track", value: 20, color: "#1f9d70" },
@@ -14,6 +15,8 @@ const data = [
 ];
 
 function ProjectOverview() {
+  const navigate = useNavigate();
+
   return (
     <div className="dashboard-card project-overview-card">
       
@@ -91,7 +94,10 @@ function ProjectOverview() {
 
       </div>
 
-      <button className="view-projects-btn">
+      <button
+        className="view-projects-btn"
+        onClick={() => navigate("/admin/projects")}
+      >
         View all projects
         <ArrowRight size={15} />
       </button>
@@ -100,4 +106,4 @@ function ProjectOverview() {
   );
 }
 
-export default ProjectOverview;
+export default ProjectOverview;

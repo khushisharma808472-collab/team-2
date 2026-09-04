@@ -47,20 +47,33 @@ const protect = async (req, res, next) => {
 };
 
 
-// Admin role protection
+// Admin only middleware
 const adminOnly = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
     return res.status(403).json({
       success: false,
       message: "Access denied. Admin only.",
     });
   }
-
-  next();
 };
 
+// Role-based authorization
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Role '${req.user ? req.user.role : "unauthenticated"}' is not authorized to access this route.`,
+      });
+    }
+    next();
+  };
+};
 
 module.exports = {
   protect,
   adminOnly,
-};
+  authorize,
+};

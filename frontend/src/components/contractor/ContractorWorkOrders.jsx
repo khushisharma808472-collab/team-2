@@ -1,6 +1,8 @@
 import { ClipboardList, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const workOrders = [
+
   {
     id: "WO-2026-081",
     title: "RCC Frame Casting - Block C",
@@ -40,7 +42,9 @@ const workOrders = [
 ];
 
 function ContractorWorkOrders() {
+  const navigate = useNavigate();
   return (
+
     <div className="dashboard-card contractor-orders-card">
       <div className="card-header">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -79,7 +83,11 @@ function ContractorWorkOrders() {
         ))}
       </div>
 
-      <button className="view-projects-btn" style={{ marginTop: "14px" }}>
+      <button
+        className="view-projects-btn"
+        style={{ marginTop: "14px" }}
+        onClick={() => navigate("/contractor/work-orders")}
+      >
         <span>View all work packages</span>
         <ArrowRight size={14} />
       </button>
@@ -88,4 +96,5 @@ function ContractorWorkOrders() {
 }
 
 export default ContractorWorkOrders;
+
 
