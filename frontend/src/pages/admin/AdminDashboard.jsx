@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import StatCard from "../../components/dashboard/StatCard";
 import ProjectOverview from "../../components/dashboard/ProjectOverview";
 import SystemAnalytics from "../../components/dashboard/SystemAnalytics";
@@ -6,77 +8,212 @@ import UserRolesChart from "../../components/dashboard/UserRolesChart";
 import ProjectStatus from "../../components/dashboard/ProjectStatus";
 import QuickActions from "../../components/dashboard/QuickActions";
 
+import api from "../../services/api";
+
 function AdminDashboard() {
+  const [dashboardData, setDashboardData] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  // =========================
+  // GET USER NAME
+  // =========================
+
   const getUserName = () => {
     try {
       const storedUser =
-        localStorage.getItem("user") || sessionStorage.getItem("user");
-      const user = storedUser ? JSON.parse(storedUser) : null;
-      if (user && user.role === "admin" && user.name) {
+        localStorage.getItem("user") ||
+        sessionStorage.getItem("user");
+
+      const user = storedUser
+        ? JSON.parse(storedUser)
+        : null;
+
+      if (user && user.name) {
         return user.name;
       }
-    } catch {
-      // fallback
+    } catch (error) {
+      console.error(
+        "User data error:",
+        error
+      );
     }
+
     return "Admin";
   };
+
   const userName = getUserName();
+
+  // =========================
+  // FETCH DASHBOARD DATA
+  // =========================
+
+  const fetchDashboardData =
+    async () => {
+      try {
+        setLoading(true);
+
+        const response =
+          await api.get(
+            "/admin/dashboard"
+          );
+
+        if (response.data.success) {
+          setDashboardData(
+            response.data
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch dashboard data:",
+          error.response?.data ||
+            error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  // =========================
+  // LOADING
+  // =========================
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          padding: "40px",
+          textAlign: "center",
+        }}
+      >
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  // =========================
+  // DEFAULT STATS
+  // =========================
+
+  const stats =
+    dashboardData?.stats || {
+      totalUsers: 0,
+      totalProjects: 0,
+      activeProjects: 0,
+      completedProjects: 0,
+      pendingApprovals: 0,
+      systemAlerts: 0,
+    };
 
   return (
     <>
-      {/* Welcome Section */}
+      {/* WELCOME SECTION */}
+
       <div className="welcome-section">
         <div>
-          <h1>Welcome back, {userName}! 👋</h1>
-          <p>Here's an overview of the system and all projects.</p>
+          <h1>
+            Welcome back, {userName}! 👋
+          </h1>
+
+          <p>
+            Here's an overview of the
+            system and all projects.
+          </p>
         </div>
 
         <button className="date-button">
-          📅 Today, 26 Aug 2026
+          📅 Today,{" "}
+          {new Date().toLocaleDateString(
+            "en-IN",
+            {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }
+          )}
         </button>
       </div>
 
-      {/* Statistics */}
+      {/* STATISTICS */}
+
       <div className="stats-grid">
         <StatCard
           title="TOTAL USERS"
-          value="256"
-          change="12%"
+          value={stats.totalUsers}
+          change="Live"
           type="users"
         />
+
         <StatCard
           title="TOTAL PROJECTS"
-          value="48"
-          change="8%"
+          value={stats.totalProjects}
+          change="Live"
           type="projects"
         />
+
         <StatCard
           title="ACTIVE PROJECTS"
-          value="32"
-          change="15%"
+          value={stats.activeProjects}
+          change="Live"
           type="active"
         />
+
         <StatCard
           title="PENDING APPROVALS"
-          value="14"
-          change="5%"
+          value={stats.pendingApprovals}
+          change="Live"
           type="pending"
         />
+
         <StatCard
           title="SYSTEM ALERTS"
-          value="7"
-          change="12%"
+          value={stats.systemAlerts}
+          change="Live"
           type="alerts"
         />
       </div>
 
-      {/* Dashboard Grid */}
+      {/* DASHBOARD COMPONENTS */}
+
       <div className="dashboard-grid">
         <ProjectOverview />
-        <SystemAnalytics />
-        <RecentActivity />
-        <UserRolesChart />
-        <ProjectStatus />
+
+        <SystemAnalytics
+  analyticsData={dashboardData?.analyticsData || []}
+  loading={loading}
+/>
+
+       <RecentActivity
+  activities={dashboardData?.recentActivities || []}
+  loading={loading}
+/>
+
+        <UserRolesChart
+  roleDistribution={
+    dashboardData?.roleDistribution || {}
+  }
+  totalUsers={
+    dashboardData?.stats?.totalUsers || 0
+  }
+  loading={loading}
+/>
+
+        <ProjectStatus
+  projectStatusDistribution={
+    dashboardData?.projectStatusDistribution || {}
+  }
+  totalProjects={
+    dashboardData?.stats?.totalProjects || 0
+  }
+  loading={loading}
+/>
+
         <QuickActions />
       </div>
     </>

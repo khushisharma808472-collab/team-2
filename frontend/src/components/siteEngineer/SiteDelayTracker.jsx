@@ -1,78 +1,330 @@
-import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
-const milestones = [
-  {
-    name: "Basement Slab Pouring",
-    due: "05 Mar 2026",
-    status: "Completed",
-    delay: "0 days",
-    badgeType: "good",
-    icon: CheckCircle2,
-  },
-  {
-    name: "Floor 4 Column Casting",
-    due: "12 Mar 2026",
-    status: "Delayed",
-    delay: "+3 days (Weather)",
-    badgeType: "warning",
-    icon: AlertTriangle,
-  },
-  {
-    name: "HVAC Conduit Routing",
-    due: "20 Mar 2026",
-    status: "At Risk",
-    delay: "+5 days (Material wait)",
-    badgeType: "danger",
-    icon: Clock,
-  },
-  {
-    name: "Structural Fire Safety Check",
-    due: "27 Mar 2026",
-    status: "On Schedule",
-    delay: "0 days",
-    badgeType: "good",
-    icon: CheckCircle2,
-  },
-];
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
+
+import api from "../../services/api";
 
 function SiteDelayTracker() {
+
+  const [milestones, setMilestones] =
+    useState([]);
+
+  const [activeDelays, setActiveDelays] =
+    useState(0);
+
+  const [loading, setLoading] =
+    useState(true);
+
+
+  useEffect(() => {
+
+    const fetchDelayData =
+      async () => {
+
+        try {
+
+          setLoading(true);
+
+          const response =
+            await api.get(
+              "/admin/site-progress"
+            );
+
+
+          if (
+            response.data.success
+          ) {
+
+            /*
+            IMPORTANT:
+            delayedMilestones sirf delayed
+            items deta hai.
+
+            Lekin screenshot jaisa
+            full milestone tracker chahiye,
+            isliye milestones use karenge.
+            */
+
+            setMilestones(
+              response.data.milestones || []
+            );
+
+            setActiveDelays(
+              response.data.stats
+                ?.activeDelays || 0
+            );
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Failed to fetch delay tracker:",
+            error.response?.data ||
+              error.message
+          );
+
+        } finally {
+
+          setLoading(false);
+
+        }
+
+      };
+
+
+    fetchDelayData();
+
+  }, []);
+
+
+  const getMilestoneInfo =
+    (milestone) => {
+
+      const status =
+        milestone.status
+          ?.toLowerCase() || "";
+
+      const progress =
+        milestone.progress || 0;
+
+
+      if (
+        progress >= 100 ||
+        status.includes("completed") ||
+        status.includes("approved")
+      ) {
+
+        return {
+          icon: CheckCircle2,
+          badgeType: "good",
+          statusText:
+            milestone.status ||
+            "Completed",
+        };
+
+      }
+
+
+      if (
+        status.includes("delay")
+      ) {
+
+        return {
+          icon: AlertTriangle,
+          badgeType: "warning",
+          statusText:
+            milestone.status,
+        };
+
+      }
+
+
+      if (
+        progress > 0
+      ) {
+
+        return {
+          icon: Clock,
+          badgeType: "progress",
+          statusText:
+            `${progress}% In Progress`,
+        };
+
+      }
+
+
+      return {
+
+        icon: Clock,
+
+        badgeType: "pending",
+
+        statusText:
+          milestone.status ||
+          "Scheduled",
+
+      };
+
+    };
+
+
   return (
+
     <div className="dashboard-card site-delay-card">
+
       <div className="card-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <AlertTriangle size={18} color="#ef4444" />
-          <h3>Milestone & Delay Tracker</h3>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+
+          <AlertTriangle
+            size={18}
+            color="#ef4444"
+          />
+
+          <h3>
+            Milestone & Delay Tracker
+          </h3>
+
         </div>
-        <span className="delay-alert-pill">2 Active Delays</span>
+
+
+        <span
+          className="delay-alert-pill"
+        >
+
+          {activeDelays}
+          {" "}
+          Active Delays
+
+        </span>
+
       </div>
+
 
       <div className="delay-list">
-        {milestones.map((item) => {
-          const Icon = item.icon;
-          return (
-            <div className="delay-item" key={item.name}>
-              <div className={`delay-icon-box ${item.badgeType}`}>
-                <Icon size={16} />
-              </div>
 
-              <div className="delay-details">
-                <strong>{item.name}</strong>
-                <span>Due Date: {item.due}</span>
-              </div>
+        {loading ? (
 
-              <div className="delay-status-col">
-                <span className={`status-pill ${item.badgeType}`}>
-                  {item.status}
-                </span>
-                <small>{item.delay}</small>
-              </div>
-            </div>
-          );
-        })}
+          <p
+            style={{
+              textAlign: "center",
+              color: "#64748b",
+            }}
+          >
+
+            Loading milestones...
+
+          </p>
+
+        ) : milestones.length === 0 ? (
+
+          <p
+            style={{
+              textAlign: "center",
+              color: "#64748b",
+            }}
+          >
+
+            No milestones found.
+
+          </p>
+
+        ) : (
+
+          milestones.map(
+            (milestone, index) => {
+
+              const info =
+                getMilestoneInfo(
+                  milestone
+                );
+
+
+              const Icon =
+                info.icon;
+
+
+              return (
+
+                <div
+                  className="delay-item"
+                  key={
+                    milestone._id
+                  }
+                >
+
+                  <div
+                    className={`delay-icon-box ${info.badgeType}`}
+                  >
+
+                    <Icon
+                      size={16}
+                    />
+
+                  </div>
+
+
+                  <div className="delay-details">
+
+                    <strong>
+
+                      Phase{" "}
+                      {index + 1}:{" "}
+
+                      {
+                        milestone.phase
+                      }
+
+                    </strong>
+
+
+                    <span>
+
+                      Due Date:{" "}
+
+                      {
+                        milestone.date
+                      }
+
+                    </span>
+
+                  </div>
+
+
+                  <div className="delay-status-col">
+
+                    <span
+                      className={`status-pill ${info.badgeType}`}
+                    >
+
+                      {
+                        info.statusText
+                      }
+
+                    </span>
+
+
+                    <small>
+
+                      {
+                        milestone.progress ||
+                        0
+                      }
+                      % Progress
+
+                    </small>
+
+                  </div>
+
+                </div>
+
+              );
+
+            }
+          )
+
+        )}
+
       </div>
+
     </div>
+
   );
+
 }
 
 export default SiteDelayTracker;
-

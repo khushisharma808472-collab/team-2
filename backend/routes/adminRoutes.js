@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   getDashboardData,
+  getSiteProgressData,
 } = require("../controllers/adminController");
 
 const {
@@ -12,12 +13,23 @@ const {
 const router = express.Router();
 
 
-// GET ADMIN DASHBOARD DATA
+// ================= ADMIN DASHBOARD =================
+
 router.get(
   "/dashboard",
   protect,
   adminOnly,
   getDashboardData
+);
+
+
+// ================= SITE PROGRESS =================
+
+router.get(
+  "/site-progress",
+  protect,
+  adminOnly,
+  getSiteProgressData
 );
 
 

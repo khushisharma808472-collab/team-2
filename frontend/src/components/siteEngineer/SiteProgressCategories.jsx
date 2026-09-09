@@ -1,90 +1,210 @@
+import { useEffect, useState } from "react";
 import { Layers } from "lucide-react";
-
-const categories = [
-  {
-    name: "Foundation Work",
-    progress: 95,
-    status: "Completed",
-    statusClass: "completed",
-    targetDate: "10 Mar 2026",
-  },
-  {
-    name: "Structural Work",
-    progress: 80,
-    status: "In Progress",
-    statusClass: "in-progress",
-    targetDate: "28 Mar 2026",
-  },
-  {
-    name: "Electrical Work",
-    progress: 55,
-    status: "In Progress",
-    statusClass: "in-progress",
-    targetDate: "15 Apr 2026",
-  },
-  {
-    name: "Plumbing Work",
-    progress: 40,
-    status: "In Progress",
-    statusClass: "in-progress",
-    targetDate: "22 Apr 2026",
-  },
-  {
-    name: "Finishing Work",
-    progress: 18,
-    status: "Starting",
-    statusClass: "pending",
-    targetDate: "10 May 2026",
-  },
-  {
-    name: "Inspection Work",
-    progress: 70,
-    status: "On Track",
-    statusClass: "completed",
-    targetDate: "Ongoing",
-  },
-];
+import api from "../../services/api";
 
 function SiteProgressCategories() {
+  const [milestones, setMilestones] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSiteProgress = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get(
+          "/admin/site-progress"
+        );
+
+        if (response.data.success) {
+          setMilestones(
+            response.data.milestones || []
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch site progress:",
+          error.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSiteProgress();
+  }, []);
+
+  const getStatus = (milestone) => {
+    const progress = milestone.progress || 0;
+    const status =
+      milestone.status?.toLowerCase() || "";
+
+    if (
+      progress >= 100 ||
+      status.includes("completed")
+    ) {
+      return {
+        text: "COMPLETED",
+        className: "completed",
+      };
+    }
+
+    if (
+      status.includes("delay")
+    ) {
+      return {
+        text: "DELAYED",
+        className: "delayed",
+      };
+    }
+
+    if (progress > 0) {
+      return {
+        text: `${progress}% IN PROGRESS`,
+        className: "in-progress",
+      };
+    }
+
+    return {
+      text: "STARTING",
+      className: "pending",
+    };
+  };
+
   return (
     <div className="dashboard-card site-categories-card">
+
       <div className="card-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Layers size={18} color="#d97706" />
-          <h3>Site Progress by Phase</h3>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <Layers
+            size={18}
+            color="#d97706"
+          />
+
+          <h3>
+            Site Progress by Phase
+          </h3>
         </div>
-        <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>
-          Phase 1 & 2
+
+        <span
+          style={{
+            fontSize: "11px",
+            color: "#64748b",
+            fontWeight: 600,
+          }}
+        >
+          Live Data
         </span>
+
       </div>
 
       <div className="categories-list">
-        {categories.map((cat) => (
-          <div className="category-item" key={cat.name}>
-            <div className="category-info">
-              <span className="category-name">{cat.name}</span>
-              <span className={`category-status ${cat.statusClass}`}>
-                {cat.status}
-              </span>
-            </div>
 
-            <div className="progress-track">
+        {loading ? (
+
+          <p
+            style={{
+              textAlign: "center",
+              color: "#64748b",
+            }}
+          >
+            Loading site progress...
+          </p>
+
+        ) : milestones.length === 0 ? (
+
+          <p
+            style={{
+              textAlign: "center",
+              color: "#64748b",
+            }}
+          >
+            No milestones found.
+          </p>
+
+        ) : (
+
+          milestones.map((milestone, index) => {
+
+            const status =
+              getStatus(milestone);
+
+            return (
+
               <div
-                className="progress-fill"
-                style={{ width: `${cat.progress}%` }}
-              />
-            </div>
+                className="category-item"
+                key={milestone._id}
+              >
 
-            <div className="category-footer">
-              <span className="category-target">Target: {cat.targetDate}</span>
-              <span className="category-percent">{cat.progress}%</span>
-            </div>
-          </div>
-        ))}
+                <div className="category-info">
+
+                  <span className="category-name">
+
+                    Phase {index + 1}:{" "}
+
+                    {milestone.phase}
+
+                  </span>
+
+                  <span
+                    className={`category-status ${status.className}`}
+                  >
+
+                    {status.text}
+
+                  </span>
+
+                </div>
+
+
+                <div className="progress-track">
+
+                  <div
+                    className="progress-fill"
+                    style={{
+                      width: `${
+                        milestone.progress || 0
+                      }%`,
+                    }}
+                  />
+
+                </div>
+
+
+                <div className="category-footer">
+
+                  <span className="category-target">
+
+                    Target: {milestone.date}
+
+                  </span>
+
+                  <span className="category-percent">
+
+                    {milestone.progress || 0}%
+
+                  </span>
+
+                </div>
+
+              </div>
+
+            );
+
+          })
+
+        )}
+
       </div>
+
     </div>
   );
 }
 
 export default SiteProgressCategories;
-

@@ -5,44 +5,44 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
-const stats = [
-  {
-    title: "Total Projects",
-    value: "24",
-    subtitle: "All assigned projects",
-    icon: FolderKanban,
-    type: "orange",
-  },
+function ProjectStats({ stats = {} }) {
+  const statsData = [
+    {
+      title: "Total Projects",
+      value: stats.totalProjects ?? 0,
+      subtitle: "All assigned projects",
+      icon: FolderKanban,
+      type: "orange",
+    },
 
-  {
-    title: "Active Projects",
-    value: "12",
-    subtitle: "Currently in progress",
-    icon: Activity,
-    type: "orange",
-  },
+    {
+      title: "Active Projects",
+      value: stats.activeProjects ?? 0,
+      subtitle: "Currently in progress",
+      icon: Activity,
+      type: "orange",
+    },
 
-  {
-    title: "Completed",
-    value: "8",
-    subtitle: "Successfully completed",
-    icon: CheckCircle2,
-    type: "green",
-  },
+    {
+      title: "Completed",
+      value: stats.completedProjects ?? 0,
+      subtitle: "Successfully completed",
+      icon: CheckCircle2,
+      type: "green",
+    },
 
-  {
-    title: "Delayed",
-    value: "4",
-    subtitle: "Require immediate attention",
-    icon: TriangleAlert,
-    type: "red",
-  },
-];
+    {
+      title: "Delayed",
+      value: stats.delayedProjects ?? 0,
+      subtitle: "Require immediate attention",
+      icon: TriangleAlert,
+      type: "red",
+    },
+  ];
 
-function ProjectStats() {
   return (
     <div className="pm-stats-grid">
-      {stats.map((stat) => {
+      {statsData.map((stat) => {
         const Icon = stat.icon;
 
         return (
