@@ -73,11 +73,11 @@ function SiteEngineerEquipment() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="MACHINERY ON SITE" value={String(equipment.length || 5)} change="Units" type="projects" />
-        <StatCard title="FLEET UPTIME" value="88.5%" change="High availability" type="active" />
-        <StatCard title="UNDER SERVICE" value="1 Unit" change="Tipper #4" type="alerts" />
-        <StatCard title="CRANE HOURS" value="38.5 hrs" change="Safe operations" type="users" />
-        <StatCard title="SCHEDULED DISPATCH" value="1 Unit" change="Transit mixer" type="pending" />
+        <StatCard title="MACHINERY ON SITE" value={String(equipment.length)} change="Units" type="projects" />
+        <StatCard title="FLEET UPTIME" value="0%" change="No data" type="active" />
+        <StatCard title="UNDER SERVICE" value="0 Units" change="No data" type="alerts" />
+        <StatCard title="CRANE HOURS" value="0 hrs" change="No data" type="users" />
+        <StatCard title="SCHEDULED DISPATCH" value="0 Units" change="No data" type="pending" />
       </div>
 
       <div className="dashboard-card equipment-card" style={{ maxWidth: "800px" }}>
@@ -93,7 +93,10 @@ function SiteEngineerEquipment() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading machinery...</div>
         ) : (
           <div className="machinery-list">
-            {equipment.map((item) => {
+            {equipment.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No equipment available.</div>
+            ) : (
+            equipment.map((item) => {
               const Icon = item.status === "Maintenance" ? Wrench : item.status === "Scheduled Delivery" ? Clock : CheckCircle2;
               return (
                 <div className="machinery-item" key={item._id}>
@@ -110,7 +113,8 @@ function SiteEngineerEquipment() {
                   </span>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         )}
       </div>

@@ -66,7 +66,14 @@ function PMProcurement() {
                 </tr>
               </thead>
               <tbody>
-                {requests.map((req) => (
+                {requests.length === 0 ? (
+                  <tr>
+                    <td colSpan={isAuthorized ? 6 : 5} style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                      No requisitions available.
+                    </td>
+                  </tr>
+                ) : (
+                requests.map((req) => (
                   <tr key={req._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 10px", fontWeight: 700, color: "#d97706" }}>{req.reqId}</td>
                     <td style={{ padding: "12px 10px", fontWeight: 600, color: "#1e293b" }}>{req.material}</td>
@@ -91,7 +98,8 @@ function PMProcurement() {
                       </td>
                     )}
                   </tr>
-                ))}
+                ))
+                )}
               </tbody>
             </table>
           </div>

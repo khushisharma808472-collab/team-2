@@ -55,25 +55,32 @@ function SiteEngineerMilestones() {
           <h1>Site Milestones & Sign-offs 🚩</h1>
           <p>Track stage completion percentages, verify structural checks, and authorize milestone certificates.</p>
         </div>
-        <button className="date-button">📅 Skyline Heights - Tower A</button>
+        <button className="date-button">
+          📅{" "}
+          {new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
+        </button>
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL MILESTONES" value={String(milestones.length || 5)} change="Roadmap" type="projects" />
+        <StatCard title="TOTAL MILESTONES" value={String(milestones.length)} change="Roadmap" type="projects" />
         <StatCard
           title="COMPLETED & SIGNED"
-          value={String(milestones.filter((m) => m.progress === 100).length || 1)}
+          value={String(milestones.filter((m) => m.progress === 100).length)}
           change="Verified"
           type="active"
         />
         <StatCard
           title="IN PROGRESS"
-          value={String(milestones.filter((m) => m.progress > 0 && m.progress < 100).length || 2)}
-          change="Active pouring"
+          value={String(milestones.filter((m) => m.progress > 0 && m.progress < 100).length)}
+          change="No data"
           type="users"
         />
-        <StatCard title="UPCOMING PHASES" value="2 Phases" change="Scheduled" type="pending" />
-        <StatCard title="INSPECTION PASS" value="100%" change="Clean pass" type="alerts" />
+        <StatCard title="UPCOMING PHASES" value="0 Phases" change="No data" type="pending" />
+        <StatCard title="INSPECTION PASS" value="0%" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-card" style={{ maxWidth: "800px" }}>
@@ -89,7 +96,10 @@ function SiteEngineerMilestones() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading milestones...</div>
         ) : (
           <div className="client-timeline-list">
-            {milestones.map((m, idx) => (
+            {milestones.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No milestones available.</div>
+            ) : (
+            milestones.map((m, idx) => (
               <div className="timeline-row" key={m._id} style={{ alignItems: "center" }}>
                 <div className={`timeline-marker ${m.badge || "progress"}`}>
                   {m.progress === 100 ? <CheckCircle2 size={14} /> : <span>{idx + 1}</span>}
@@ -125,7 +135,8 @@ function SiteEngineerMilestones() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         )}
       </div>

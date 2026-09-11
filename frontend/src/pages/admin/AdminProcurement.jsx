@@ -11,8 +11,8 @@ function AdminProcurement() {
   const [formData, setFormData] = useState({
     material: "",
     category: "Cement",
-    quantity: "200 Bags",
-    site: "Tower A - Level 12",
+    quantity: "",
+    site: "",
     notes: "",
   });
 
@@ -93,26 +93,26 @@ function AdminProcurement() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL REQUISITIONS" value={String(requests.length || 6)} change="Tracked" type="projects" />
+        <StatCard title="TOTAL REQUISITIONS" value={String(requests.length)} change="Tracked" type="projects" />
         <StatCard
           title="PENDING APPROVAL"
-          value={String(requests.filter((r) => r.status === "Pending Approval").length || 1)}
+          value={String(requests.filter((r) => r.status === "Pending Approval").length)}
           change="Urgent"
           type="pending"
         />
         <StatCard
           title="APPROVED & IN TRANSIT"
-          value={String(requests.filter((r) => r.status === "Approved" || r.status === "In Transit").length || 3)}
+          value={String(requests.filter((r) => r.status === "Approved" || r.status === "In Transit").length)}
           change="Dispatching"
           type="active"
         />
         <StatCard
           title="DELIVERED THIS WEEK"
-          value={String(requests.filter((r) => r.status === "Delivered").length || 2)}
+          value={String(requests.filter((r) => r.status === "Delivered").length)}
           change="Verified"
           type="users"
         />
-        <StatCard title="PO BUDGET UTILIZED" value="₹ 48.5 L" change="On budget" type="alerts" />
+        <StatCard title="PO BUDGET UTILIZED" value="₹ 0" change="Not tracked" type="alerts" />
       </div>
 
       <div className="dashboard-card">
@@ -141,7 +141,14 @@ function AdminProcurement() {
                 </tr>
               </thead>
               <tbody>
-                {requests.map((req) => (
+                {requests.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                      No material requisitions available.
+                    </td>
+                  </tr>
+                ) : (
+                  requests.map((req) => (
                   <tr key={req._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 10px", fontWeight: 700, color: "#3b82f6" }}>{req.reqId}</td>
                     <td style={{ padding: "12px 10px", fontWeight: 600, color: "#1e293b" }}>{req.material}</td>
@@ -192,7 +199,8 @@ function AdminProcurement() {
                       </td>
                     )}
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

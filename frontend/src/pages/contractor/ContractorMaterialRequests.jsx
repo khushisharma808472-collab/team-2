@@ -11,8 +11,8 @@ function ContractorMaterialRequests() {
   const [formData, setFormData] = useState({
     material: "",
     category: "Cement",
-    quantity: "450 Bags",
-    site: "Tower A - Level 12",
+    quantity: "",
+    site: "",
     notes: "",
   });
 
@@ -74,26 +74,26 @@ function ContractorMaterialRequests() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL REQUISITIONS" value={String(requests.length || 4)} change="Live" type="projects" />
+        <StatCard title="TOTAL REQUISITIONS" value={String(requests.length)} change="Live" type="projects" />
         <StatCard
           title="PENDING APPROVAL"
-          value={String(requests.filter((r) => r.status === "Pending Approval").length || 1)}
-          change="PM review"
+          value={String(requests.filter((r) => r.status === "Pending Approval").length)}
+          change="Awaiting review"
           type="pending"
         />
         <StatCard
           title="IN TRANSIT"
-          value={String(requests.filter((r) => r.status === "In Transit").length || 1)}
-          change="Rebar Fe 550"
+          value={String(requests.filter((r) => r.status === "In Transit").length)}
+          change="Live"
           type="alerts"
         />
         <StatCard
           title="DELIVERED TODAY"
-          value={String(requests.filter((r) => r.status === "Delivered" || r.status === "Approved").length || 2)}
+          value={String(requests.filter((r) => r.status === "Delivered" || r.status === "Approved").length)}
           change="Verified"
           type="active"
         />
-        <StatCard title="SUPPLY ACCURACY" value="99.4%" change="Quality pass" type="users" />
+        <StatCard title="SUPPLY ACCURACY" value="0%" change="No data" type="users" />
       </div>
 
       <div className="dashboard-card material-requests-card" style={{ maxWidth: "800px" }}>
@@ -109,33 +109,37 @@ function ContractorMaterialRequests() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading requisitions...</div>
         ) : (
           <div className="material-req-list">
-            {requests.map((item) => {
-              const Icon =
-                item.status === "In Transit"
-                  ? Truck
-                  : item.status === "Pending Approval"
-                  ? Clock
-                  : CheckCircle2;
+            {requests.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No material requests available.</div>
+            ) : (
+              requests.map((item) => {
+                const Icon =
+                  item.status === "In Transit"
+                    ? Truck
+                    : item.status === "Pending Approval"
+                    ? Clock
+                    : CheckCircle2;
 
-              return (
-                <div className="material-req-item" key={item._id}>
-                  <div className="req-col-main">
-                    <div className="req-title-row">
-                      <span className="req-id">{item.reqId}</span>
-                      <strong>{item.material}</strong>
+                return (
+                  <div className="material-req-item" key={item._id}>
+                    <div className="req-col-main">
+                      <div className="req-title-row">
+                        <span className="req-id">{item.reqId}</span>
+                        <strong>{item.material}</strong>
+                      </div>
+                      <span className="req-meta">
+                        Qty: {item.quantity} • Category: {item.category} • {item.date}
+                      </span>
                     </div>
-                    <span className="req-meta">
-                      Qty: {item.quantity} • Category: {item.category} • {item.date}
+
+                    <span className={`req-badge ${item.badge || "warning"}`}>
+                      <Icon size={12} />
+                      {item.status}
                     </span>
                   </div>
-
-                  <span className={`req-badge ${item.badge || "warning"}`}>
-                    <Icon size={12} />
-                    {item.status}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         )}
       </div>

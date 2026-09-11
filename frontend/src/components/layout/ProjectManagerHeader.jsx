@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu,
   Search,
@@ -8,10 +8,33 @@ import {
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 
 function ProjectManagerHeader() {
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await api.get("/notifications/unread-count");
+        if (mounted && response.data.success) {
+          setUnreadCount(response.data.count || 0);
+        }
+      } catch (error) {
+        console.error("Failed to fetch notification count:", error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Get logged-in user from storage
   const storedUser =
@@ -90,9 +113,11 @@ function ProjectManagerHeader() {
         <button className="pm-notification-button">
           <Bell size={21} />
 
-          <span className="pm-notification-badge">
-            3
-          </span>
+          {unreadCount > 0 && (
+            <span className="pm-notification-badge">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         {/* PROFILE */}

@@ -33,11 +33,11 @@ function ContractorEquipment() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="DEPLOYED UNITS" value={String(equipment.length || 5)} change="On site" type="projects" />
-        <StatCard title="CRANE UPTIME" value="98.2%" change="Optimal" type="active" />
-        <StatCard title="INSPECTIONS PASSED" value="100%" change="Clear" type="users" />
-        <StatCard title="MAINTENANCE STATUS" value="1 Unit" change="Tipper #4" type="alerts" />
-        <StatCard title="SCHEDULED DISPATCH" value="1 Mixer" change="Today 2 PM" type="pending" />
+        <StatCard title="DEPLOYED UNITS" value={String(equipment.length)} change="On site" type="projects" />
+        <StatCard title="CRANE UPTIME" value="0%" change="No data" type="active" />
+        <StatCard title="INSPECTIONS PASSED" value="0%" change="No data" type="users" />
+        <StatCard title="MAINTENANCE STATUS" value="0" change="No data" type="alerts" />
+        <StatCard title="SCHEDULED DISPATCH" value="0" change="No data" type="pending" />
       </div>
 
       <div className="dashboard-card equipment-card" style={{ maxWidth: "800px" }}>
@@ -53,17 +53,21 @@ function ContractorEquipment() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading equipment...</div>
         ) : (
           <div className="machinery-list">
-            {equipment.map((item) => (
-              <div className="machinery-item" key={item._id}>
-                <div className="machinery-info">
-                  <strong>{item.name}</strong>
-                  <span className="machinery-type">
-                    {item.type} • Op: {item.operator} • Loc: {item.location}
-                  </span>
+            {equipment.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No equipment available.</div>
+            ) : (
+              equipment.map((item) => (
+                <div className="machinery-item" key={item._id}>
+                  <div className="machinery-info">
+                    <strong>{item.name}</strong>
+                    <span className="machinery-type">
+                      {item.type} • Op: {item.operator} • Loc: {item.location}
+                    </span>
+                  </div>
+                  <span className={`equipment-badge ${item.badge || "status-operational"}`}>{item.status}</span>
                 </div>
-                <span className={`equipment-badge ${item.badge || "status-operational"}`}>{item.status}</span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>

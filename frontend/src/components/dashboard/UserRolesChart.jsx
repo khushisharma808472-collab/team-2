@@ -5,6 +5,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import { useState, useEffect } from "react";
+import api from "../../services/api";
+
 // ================= ROLE CONFIGURATION =================
 
 const rolesConfig = [
@@ -15,18 +18,23 @@ const rolesConfig = [
   },
   {
     name: "Project Managers",
-    apiRole: "projectManager",
+    apiRole: "project_manager",
     color: "#22c55e",
   },
   {
     name: "Site Engineers",
-    apiRole: "siteEngineer",
+    apiRole: "site_engineer",
     color: "#f59e0b",
   },
   {
     name: "Contractors",
     apiRole: "contractor",
     color: "#8b5cf6",
+  },
+  {
+    name: "Workers",
+    apiRole: "worker",
+    color: "#ef4444",
   },
   {
     name: "Clients",
@@ -37,15 +45,45 @@ const rolesConfig = [
 
 // ================= COMPONENT =================
 
-function UserRolesChart({
-  roleDistribution = {},
-  totalUsers = 0,
-  loading = false,
-}) {
+function UserRolesChart({ roleDistribution, totalUsers, loading }) {
+  const [data, setData] = useState(roleDistribution || {});
+  const [count, setCount] = useState(totalUsers || 0);
+  const [selfLoading, setSelfLoading] = useState(Boolean(loading));
+
+  useEffect(() => {
+    // If no props passed, fetch the data ourselves
+    if (roleDistribution === undefined) {
+      const fetchData = async () => {
+        try {
+          setSelfLoading(true);
+          const response = await api.get("/admin/dashboard");
+          if (response.data.success) {
+            setData(response.data.roleDistribution || {});
+            setCount(response.data.stats?.totalUsers || 0);
+          }
+        } catch (error) {
+          console.error(
+            "Failed to fetch user roles:",
+            error.response?.data || error.message
+          );
+        } finally {
+          setSelfLoading(false);
+        }
+      };
+      fetchData();
+    } else {
+      setData(roleDistribution);
+      setCount(totalUsers || 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleDistribution, totalUsers]);
+
+  const isLoading = roleDistribution === undefined ? selfLoading : Boolean(loading);
+
   // API data ko chart format mein convert karna
   const rolesData = rolesConfig.map((role) => ({
     name: role.name,
-    value: roleDistribution[role.apiRole] || 0,
+    value: data[role.apiRole] || 0,
     color: role.color,
   }));
 
@@ -56,7 +94,7 @@ function UserRolesChart({
       </div>
 
       <div className="roles-content">
-        {loading ? (
+        {isLoading ? (
           <div
             style={{
               height: "180px",
@@ -93,7 +131,7 @@ function UserRolesChart({
               </ResponsiveContainer>
 
               <div className="roles-center-text">
-                <strong>{totalUsers}</strong>
+                <strong>{count}</strong>
                 <span>Total Users</span>
               </div>
             </div>
@@ -119,9 +157,9 @@ function UserRolesChart({
 
                   <span className="role-percent">
                     (
-                    {totalUsers > 0
+                    {count > 0
                       ? Math.round(
-                          (role.value / totalUsers) * 100
+                          (role.value / count) * 100
                         )
                       : 0}
                     %)

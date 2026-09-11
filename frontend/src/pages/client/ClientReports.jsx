@@ -45,11 +45,11 @@ function ClientReports() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="VERIFIED AUDITS" value="12 Passed" change="100% score" type="projects" />
-        <StatCard title="LAB TEST RESULTS" value="28 Cylinders" change="M25 & M40" type="active" />
-        <StatCard title="THIRD-PARTY AUDIT" value="Cleared" change="TUV certified" type="users" />
-        <StatCard title="HANDOVER ESTIMATE" value="Aug 2026" change="On schedule" type="pending" />
-        <StatCard title="CRITICAL SNAGS" value="0" change="All clear" type="alerts" />
+        <StatCard title="VERIFIED AUDITS" value={String(reports.length)} change="No data" type="projects" />
+        <StatCard title="LAB TEST RESULTS" value="0" change="No data" type="active" />
+        <StatCard title="THIRD-PARTY AUDIT" value="No data" change="No data" type="users" />
+        <StatCard title="HANDOVER ESTIMATE" value="No data" change="No data" type="pending" />
+        <StatCard title="CRITICAL SNAGS" value="0" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid role-grid">
@@ -65,26 +65,30 @@ function ClientReports() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {reports.map((rep) => (
-              <div
-                key={rep._id}
-                style={{
-                  padding: "10px",
-                  background: "#f8fafc",
-                  borderRadius: "8px",
-                  border: "1px solid #f1f5f9",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div>
-                  <strong style={{ fontSize: "12px", color: "#1e293b", display: "block" }}>{rep.title}</strong>
-                  <span style={{ fontSize: "10px", color: "#64748b" }}>{rep.location} • {rep.date}</span>
+            {reports.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No reports available.</div>
+            ) : (
+              reports.map((rep) => (
+                <div
+                  key={rep._id}
+                  style={{
+                    padding: "10px",
+                    background: "#f8fafc",
+                    borderRadius: "8px",
+                    border: "1px solid #f1f5f9",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <strong style={{ fontSize: "12px", color: "#1e293b", display: "block" }}>{rep.title}</strong>
+                    <span style={{ fontSize: "10px", color: "#64748b" }}>{rep.location} • {rep.date}</span>
+                  </div>
+                  <span className="status-pill good">Certified</span>
                 </div>
-                <span className="status-pill good">Certified</span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

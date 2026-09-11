@@ -7,12 +7,43 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import api from "../../services/api";
 
-function SystemAnalytics({
-  analyticsData = [],
-  loading = false,
-}) {
+function SystemAnalytics({ analyticsData, loading }) {
+  const [data, setData] = useState(analyticsData || []);
+  const [selfLoading, setSelfLoading] = useState(Boolean(loading));
+
+  useEffect(() => {
+    // If no props passed, fetch the data ourselves
+    if (analyticsData === undefined) {
+      const fetchData = async () => {
+        try {
+          setSelfLoading(true);
+          const response = await api.get("/admin/dashboard");
+          if (response.data.success) {
+            setData(response.data.analyticsData || []);
+          }
+        } catch (error) {
+          console.error(
+            "Failed to fetch analytics:",
+            error.response?.data || error.message
+          );
+        } finally {
+          setSelfLoading(false);
+        }
+      };
+      fetchData();
+    } else {
+      setData(analyticsData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analyticsData]);
+
+  const isLoading = analyticsData === undefined ? selfLoading : Boolean(loading);
+  const chartData = analyticsData === undefined ? data : analyticsData;
+
   return (
     <div className="dashboard-card system-analytics-card">
       <div className="card-header">
@@ -37,7 +68,7 @@ function SystemAnalytics({
       </div>
 
       <div className="analytics-chart">
-        {loading ? (
+        {isLoading ? (
           <div
             style={{
               height: "100%",
@@ -48,7 +79,7 @@ function SystemAnalytics({
           >
             Loading analytics...
           </div>
-        ) : analyticsData.length === 0 ? (
+        ) : chartData.length === 0 ? (
           <div
             style={{
               height: "100%",
@@ -62,7 +93,7 @@ function SystemAnalytics({
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={analyticsData}
+              data={chartData}
               margin={{
                 top: 10,
                 right: 5,

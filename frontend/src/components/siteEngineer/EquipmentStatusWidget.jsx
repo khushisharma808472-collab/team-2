@@ -1,49 +1,73 @@
 import { Truck, CheckCircle2, Wrench, Clock } from "lucide-react";
 
-const machinery = [
-  {
-    name: "Tower Crane #1",
-    type: "Crane",
-    status: "Operational",
-    operator: "Rajesh S.",
-    badge: "status-operational",
-    icon: CheckCircle2,
-  },
-  {
-    name: "CAT Excavator 320",
-    type: "Excavator",
-    status: "In Use",
-    operator: "Harpreet Singh",
-    badge: "status-operational",
-    icon: CheckCircle2,
-  },
-  {
-    name: "Transit Mixer 8m³",
-    type: "Concrete Mixer",
-    status: "Scheduled Delivery",
-    operator: "Vikas Verma",
-    badge: "status-scheduled",
-    icon: Clock,
-  },
-  {
-    name: "Tipper Truck #4",
-    type: "Dump Truck",
-    status: "Maintenance",
-    operator: "Workshop",
-    badge: "status-maintenance",
-    icon: Wrench,
-  },
-  {
-    name: "Diesel Generator 125kVA",
-    type: "Generator",
-    status: "Standby",
-    operator: "Site Crew",
-    badge: "status-scheduled",
-    icon: CheckCircle2,
-  },
-];
+const getIconForStatus = (status) => {
+  if (
+    status === "Maintenance" ||
+    (status || "").toLowerCase().includes("maint")
+  ) {
+    return Wrench;
+  }
+  if (
+    status === "Scheduled Delivery" ||
+    status === "Standby" ||
+    (status || "").toLowerCase().includes("scheduled") ||
+    (status || "").toLowerCase().includes("standby")
+  ) {
+    return Clock;
+  }
+  return CheckCircle2;
+};
 
-function EquipmentStatusWidget() {
+const getBadgeForStatus = (status) => {
+  if (
+    status === "Maintenance" ||
+    (status || "").toLowerCase().includes("maint")
+  ) {
+    return "status-maintenance";
+  }
+  if (
+    status === "Scheduled Delivery" ||
+    status === "Standby" ||
+    (status || "").toLowerCase().includes("scheduled") ||
+    (status || "").toLowerCase().includes("standby")
+  ) {
+    return "status-scheduled";
+  }
+  return "status-operational";
+};
+
+function EquipmentStatusWidget({ equipment = [], count }) {
+  const unitCount =
+    typeof count === "number"
+      ? count
+      : Array.isArray(equipment) && equipment.length > 0
+      ? equipment.length
+      : 0;
+
+  const items = Array.isArray(equipment) && equipment.length > 0
+    ? equipment.slice(0, 5)
+    : [];
+
+  if (items.length === 0) {
+    return (
+      <div className="dashboard-card equipment-card">
+        <div className="card-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Truck size={18} color="#3b82f6" />
+            <h3>Equipment & Machinery Status</h3>
+          </div>
+          <span style={{ fontSize: "11px", color: "#64748b" }}>No equipment logged</span>
+        </div>
+
+        <div className="machinery-list">
+          <p style={{ textAlign: "center", color: "#64748b", padding: "16px 0" }}>
+            No machinery data available yet.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-card equipment-card">
       <div className="card-header">
@@ -51,14 +75,16 @@ function EquipmentStatusWidget() {
           <Truck size={18} color="#3b82f6" />
           <h3>Equipment & Machinery Status</h3>
         </div>
-        <span style={{ fontSize: "11px", color: "#64748b" }}>5 Units Logged</span>
+        <span style={{ fontSize: "11px", color: "#64748b" }}>
+          {unitCount} Units Logged
+        </span>
       </div>
 
       <div className="machinery-list">
-        {machinery.map((item) => {
-          const Icon = item.icon;
+        {items.map((item) => {
+          const Icon = getIconForStatus(item.status);
           return (
-            <div className="machinery-item" key={item.name}>
+            <div className="machinery-item" key={item._id || item.name}>
               <div className="machinery-info">
                 <strong>{item.name}</strong>
                 <span className="machinery-type">
@@ -66,7 +92,7 @@ function EquipmentStatusWidget() {
                 </span>
               </div>
 
-              <span className={`equipment-badge ${item.badge}`}>
+              <span className={`equipment-badge ${getBadgeForStatus(item.status)}`}>
                 <Icon size={12} />
                 {item.status}
               </span>
@@ -79,4 +105,3 @@ function EquipmentStatusWidget() {
 }
 
 export default EquipmentStatusWidget;
-

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../../services/api";
 import "../../styles/auth.css";
 
 function Login() {
@@ -29,30 +30,15 @@ function Login() {
       setIsLoading(true);
 
       // Backend API Call
-      const response = await fetch(
-        "http://localhost:5000/api/auth/login",
+      const response = await API.post(
+        "/auth/login",
         {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+          email,
+          password,
         }
       );
 
-      const data = await response.json();
-
-      // Login Failed
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Login failed"
-        );
-      }
+      const data = response.data;
 
       console.log("Login Response:", data);
 

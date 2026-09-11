@@ -1,12 +1,50 @@
 const Notification = require("../models/Notification");
 
+// ================= HELPERS =================
+
+const buildRoleQuery = (user) => {
+  if (!user) return {};
+  return {
+    $or: [{ role: "all" }, { role: user.role }],
+  };
+};
+
 // GET /api/notifications
 const getNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find().sort({ createdAt: -1 });
+    const query = buildRoleQuery(req.user);
+
+    const notifications = await Notification.find(query)
+      .sort({ createdAt: -1 });
+
+    const totalUnread = await Notification.countDocuments({
+      ...query,
+      read: false,
+    });
+
     res.status(200).json({
       success: true,
       data: notifications,
+      totalUnread,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// GET /api/notifications/unread-count
+const getUnreadCount = async (req, res) => {
+  try {
+    const query = buildRoleQuery(req.user);
+
+    const totalUnread = await Notification.countDocuments({
+      ...query,
+      read: false,
+    });
+
+    res.status(200).json({
+      success: true,
+      totalUnread,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -37,7 +75,10 @@ const markAsRead = async (req, res) => {
 // PUT /api/notifications/mark-all-read
 const markAllAsRead = async (req, res) => {
   try {
-    await Notification.updateMany({ read: false }, { read: true });
+    await Notification.updateMany(
+      { ...buildRoleQuery(req.user), read: false },
+      { read: true }
+    );
     res.status(200).json({
       success: true,
       message: "All notifications marked as read",
@@ -49,6 +90,7 @@ const markAllAsRead = async (req, res) => {
 
 module.exports = {
   getNotifications,
+  getUnreadCount,
   markAsRead,
   markAllAsRead,
 };

@@ -12,7 +12,7 @@ function AdminWorkforce() {
   const [formData, setFormData] = useState({
     userName: "",
     trade: "Masons & Structural",
-    site: "Tower A - Level 12",
+    site: "",
     status: "Present",
   });
 
@@ -74,11 +74,11 @@ function AdminWorkforce() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL WORKFORCE" value="168 Crew" change="96.4% on site" type="users" />
-        <StatCard title="SUPERVISORS & PMs" value="14 Leads" change="Full coverage" type="projects" />
-        <StatCard title="SAFETY COMPLIANCE" value="100%" change="PPE verified" type="active" />
-        <StatCard title="TOTAL SHIFTS TODAY" value="2 Shifts" change="Day & Night" type="pending" />
-        <StatCard title="OVERTIME LOGGED" value="+28 Hours" change="Tower Core" type="alerts" />
+        <StatCard title="TOTAL WORKFORCE" value={String(attendance.length)} change="Logged" type="users" />
+        <StatCard title="SUPERVISORS & PMs" value="0" change="No data" type="projects" />
+        <StatCard title="SAFETY COMPLIANCE" value="0%" change="No data" type="active" />
+        <StatCard title="TOTAL SHIFTS TODAY" value="0" change="No data" type="pending" />
+        <StatCard title="OVERTIME LOGGED" value="0 Hours" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid role-grid" style={{ marginBottom: "20px" }}>
@@ -97,7 +97,10 @@ function AdminWorkforce() {
             <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>Loading muster roll...</div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {attendance.map((att) => (
+              {attendance.length === 0 ? (
+                <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No attendance records available.</div>
+              ) : (
+                attendance.map((att) => (
                 <div
                   key={att._id}
                   style={{
@@ -122,7 +125,8 @@ function AdminWorkforce() {
                     <small style={{ display: "block", fontSize: "9px", color: "#94a3b8" }}>In: {att.checkIn}</small>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </div>

@@ -8,6 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import api from "../../services/api";
 
 function Header({ title }) {
   const navigate = useNavigate();
@@ -15,6 +16,28 @@ function Header({ title }) {
   const dropdownRef = useRef(null);
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await api.get("/notifications/unread-count");
+        if (mounted && response.data.success) {
+          setUnreadCount(response.data.count || 0);
+        }
+      } catch (error) {
+        console.error("Failed to fetch notification count:", error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -153,9 +176,11 @@ function Header({ title }) {
           title="Notifications"
         >
           <Bell size={20} />
-          <span className="notification-badge">
-            3
-          </span>
+          {unreadCount > 0 && (
+            <span className="notification-badge">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         {/* USER PROFILE */}

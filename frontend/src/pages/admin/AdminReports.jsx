@@ -100,11 +100,16 @@ function AdminReports() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL REPORTS" value={String(reports.length || 4)} change="Logged" type="projects" />
-        <StatCard title="INSPECTIONS PASSED" value="98.2%" change="Grade A" type="active" />
-        <StatCard title="AUDIT SNAGS OPEN" value="1" change="Under review" type="alerts" />
-        <StatCard title="APPROVED SIGN-OFFS" value="12 Verified" change="Quality lead" type="users" />
-        <StatCard title="REPORT COMPLIANCE" value="100%" change="ISO certified" type="pending" />
+        <StatCard title="TOTAL REPORTS" value={String(reports.length)} change="Logged" type="projects" />
+        <StatCard title="INSPECTIONS PASSED" value="0%" change="No data" type="active" />
+        <StatCard title="AUDIT SNAGS OPEN" value="0" change="No data" type="alerts" />
+        <StatCard
+          title="APPROVED SIGN-OFFS"
+          value={String(reports.filter((r) => r.status === "Approved").length)}
+          change="Quality lead"
+          type="users"
+        />
+        <StatCard title="REPORT COMPLIANCE" value="0%" change="No data" type="pending" />
       </div>
 
       {/* FILTER TABS */}
@@ -124,6 +129,8 @@ function AdminReports() {
       <div className="dashboard-grid role-grid">
         {loading ? (
           <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>Loading reports...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No reports available.</div>
         ) : (
           filtered.map((rep) => (
             <div className="dashboard-card" key={rep._id} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>

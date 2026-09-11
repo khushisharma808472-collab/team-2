@@ -52,6 +52,10 @@ function PMReports() {
       <div className="dashboard-grid role-grid">
         {loading ? (
           <div style={{ padding: "30px", textAlign: "center" }}>Loading reports...</div>
+        ) : reports.length === 0 ? (
+          <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+            No reports available.
+          </div>
         ) : (
           reports.map((rep) => (
             <div className="dashboard-card" key={rep._id} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

@@ -1,12 +1,17 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../../components/dashboard/StatCard";
 import WorkforceTradeAllocation from "../../components/contractor/WorkforceTradeAllocation";
 import ContractorWorkOrders from "../../components/contractor/ContractorWorkOrders";
 import MaterialRequestsWidget from "../../components/contractor/MaterialRequestsWidget";
 import { UserCheck, PackagePlus, HardHat, ClipboardCheck } from "lucide-react";
+import api from "../../services/api";
 
 function ContractorDashboard() {
   const navigate = useNavigate();
+
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const getUserName = () => {
     try {
@@ -23,6 +28,31 @@ function ContractorDashboard() {
   };
   const userName = getUserName();
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get("/dashboard/contractor");
+
+        if (response.data.success) {
+          setDashboardData(response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch Contractor dashboard:",
+          error.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const stats = dashboardData?.stats || {};
+
   return (
     <>
       {/* WELCOME SECTION */}
@@ -33,7 +63,12 @@ function ContractorDashboard() {
         </div>
 
         <button className="date-button">
-          📅 Today, 26 Aug 2026
+          📅 Today,{" "}
+          {new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
         </button>
       </div>
 
@@ -41,31 +76,31 @@ function ContractorDashboard() {
       <div className="stats-grid">
         <StatCard
           title="ACTIVE CREW ON-SITE"
-          value="168"
-          change="12%"
+          value={stats.totalCrew ?? 0}
+          change={loading ? "Loading" : "Live"}
           type="users"
         />
         <StatCard
           title="ATTENDANCE RATE"
-          value="96.4%"
-          change="2.1%"
+          value={`${stats.attendanceRate ?? 0}%`}
+          change={loading ? "Loading" : "Live"}
           type="active"
         />
         <StatCard
           title="ACTIVE WORK ORDERS"
-          value="4"
-          change="8% on time"
+          value={stats.activeWork ?? 0}
+          change={`${stats.onSchedule ?? 0} on time`}
           type="projects"
         />
         <StatCard
           title="MATERIAL REQUISITIONS"
-          value="6"
-          change="1 pending"
+          value={stats.totalMaterialRequests ?? 0}
+          change={`${stats.pendingMaterialRequests ?? 0} pending`}
           type="pending"
         />
         <StatCard
           title="MACHINERY DEPLOYED"
-          value="8 Units"
+          value={`${stats.equipmentDeployed ?? 0} Units`}
           change="Active"
           type="alerts"
         />
@@ -74,13 +109,13 @@ function ContractorDashboard() {
       {/* MAIN WIDGETS GRID */}
       <div className="dashboard-grid role-grid">
         {/* 1. Workforce Allocation by Trade */}
-        <WorkforceTradeAllocation />
+        <WorkforceTradeAllocation data={dashboardData?.workforceData || []} />
 
         {/* 2. Active Work Orders */}
-        <ContractorWorkOrders />
+        <ContractorWorkOrders workOrders={dashboardData?.workOrders || []} />
 
         {/* 3. Material Requests & Requisitions */}
-        <MaterialRequestsWidget />
+        <MaterialRequestsWidget requests={dashboardData?.materialRequests || []} />
 
         {/* 4. Contractor Quick Actions */}
         <div className="dashboard-card quick-actions-card">

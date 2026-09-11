@@ -147,6 +147,17 @@
   }
 }
 
+@keyframes drawerItemIn {
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes loaderMarkPulse {
   0%,
   100% {
@@ -175,17 +186,6 @@
   }
   50% {
     opacity: 1;
-  }
-}
-
-@keyframes menuDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -303,6 +303,24 @@
 .hero-ready .hero .hero-image {
   animation: fadeUp 0.9s var(--ease) both;
   animation-delay: 0.6s;
+}
+
+/* ---------------- Brand wordmark intro after loader ---------------- */
+
+.app.hero-ready .navbar .logo-word {
+  animation: logoWordIn 0.6s var(--ease) both;
+  animation-delay: 0.15s;
+}
+
+@keyframes logoWordIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ---------------- Counters ---------------- */
@@ -495,7 +513,8 @@
 .logo-icon {
   transition:
     transform 0.4s var(--ease),
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    filter 0.3s ease;
 }
 
 .logo:hover .logo-icon {
@@ -721,6 +740,8 @@
 .hero {
   position: relative;
   isolation: isolate;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .hero::before {
@@ -994,13 +1015,15 @@
   transition-duration: 0.15s;
 }
 
-/* ---------------- Mobile menu ---------------- */
+/* ---------------- Mobile menu (right-side drawer) ---------------- */
 
-.menu-toggle {
+.menu-toggle,
+.mobile-menu-overlay,
+.mobile-menu {
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
   .menu-toggle {
     display: inline-flex;
     align-items: center;
@@ -1027,38 +1050,158 @@
     transform: scale(0.95);
   }
 
+  .mobile-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: block;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+  }
+
+  .mobile-menu-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
   .mobile-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
+    position: fixed;
+    top: 0;
     right: 0;
-    background: var(--menu-bg);
-    border-bottom: 1px solid var(--border-nav);
-    padding: 14px 20px 18px;
+    bottom: 0;
+    width: min(72vw, 340px);
+    z-index: 9999;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 30px 40px -28px rgba(0, 0, 0, 0.7);
-    animation: menuDown 0.4s var(--ease) both;
-  }
-
-  .mobile-menu a {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-2b);
-    padding: 11px 6px;
-    border-radius: 6px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-left: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px 0 0 20px;
+    box-shadow: -12px 0 40px rgba(15, 23, 42, 0.18);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(100%) scale(0.98);
     transition:
-      color 0.25s ease,
-      background-color 0.25s ease,
-      padding-left 0.25s ease;
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.28s ease,
+      visibility 0.35s var(--ease);
   }
 
-  .mobile-menu a:hover {
+  .mobile-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+  }
+
+  .mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    flex-shrink: 0;
+  }
+
+  .mobile-menu-title {
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .mobile-menu-close {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(71, 85, 105, 0.2);
+    background: rgba(255, 255, 255, 0.3);
+    color: #334155;
+    border-radius: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      color 0.18s ease,
+      transform 0.2s var(--ease);
+  }
+
+  .mobile-menu-close:hover {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(71, 85, 105, 0.35);
+    color: var(--accent-2);
+  }
+
+  .mobile-menu-close:active {
+    transform: scale(0.94);
+  }
+
+  .mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 24px 32px;
+  }
+
+  .mobile-menu-links a {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    color: #334155;
+    padding: 12px 14px;
+    border-radius: 12px;
+    transition: all 0.18s ease;
+  }
+
+  .mobile-menu-links a:hover {
     color: var(--accent);
-    background: var(--accent-wash-2);
-    padding-left: 13px;
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateX(4px);
   }
 
+  .mobile-menu-links a:active {
+    transform: translateX(4px) scale(0.98);
+  }
+
+  .mobile-menu.open .mobile-menu-links a {
+    animation: drawerItemIn 0.45s var(--ease) both;
+  }
+
+  .mobile-menu.open .mobile-menu-links a:nth-child(1) {
+    animation-delay: 50ms;
+  }
+
+  .mobile-menu.open .mobile-menu-links a:nth-child(2) {
+    animation-delay: 100ms;
+  }
+
+  .mobile-menu.open .mobile-menu-links a:nth-child(3) {
+    animation-delay: 150ms;
+  }
+
+  .mobile-menu.open .mobile-menu-links a:nth-child(4) {
+    animation-delay: 200ms;
+  }
+
+  .mobile-menu.open .mobile-menu-links a:nth-child(5) {
+    animation-delay: 250ms;
+  }
+}
+
+@media (max-width: 900px) {
   .hero-float .float-blueprint,
   .hero-float .float-crane,
   .hero-float .float-iso {
@@ -1071,8 +1214,9 @@
   }
 }
 
-@media (min-width: 901px) {
-  .mobile-menu {
+@media (min-width: 768px) {
+  .mobile-menu,
+  .mobile-menu-overlay {
     display: none;
   }
 }

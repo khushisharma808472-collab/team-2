@@ -30,20 +30,21 @@ function ClientProjects() {
           <h1>My Projects Portfolio 🏢</h1>
           <p>Real-time construction execution, unit specifications, structural sign-offs, and handover timelines.</p>
         </div>
-        <button className="date-button">📅 Registered Sites: 2</button>
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL DEVELOPMENTS" value={String(projects.length || 2)} change="Active" type="projects" />
-        <StatCard title="OVERALL COMPLETION" value="68.5%" change="+5.2%" type="active" />
-        <StatCard title="TOTAL INVESTMENT" value="₹ 15.0 Cr" change="Verified" type="users" />
-        <StatCard title="DISBURSED AMOUNT" value="₹ 6.8 Cr" change="Paid" type="pending" />
-        <StatCard title="TARGET POSSESSION" value="Aug 2026" change="On track" type="alerts" />
+        <StatCard title="TOTAL DEVELOPMENTS" value={String(projects.length)} change="Active" type="projects" />
+        <StatCard title="OVERALL COMPLETION" value="0%" change="No data" type="active" />
+        <StatCard title="TOTAL INVESTMENT" value="₹ 0" change="No data" type="users" />
+        <StatCard title="DISBURSED AMOUNT" value="₹ 0" change="No data" type="pending" />
+        <StatCard title="TARGET POSSESSION" value="No data" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid role-grid">
         {loading ? (
           <div style={{ padding: "30px", textAlign: "center" }}>Loading projects...</div>
+        ) : projects.length === 0 ? (
+          <div className="dashboard-card" style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No projects available.</div>
         ) : (
           projects.map((p) => (
             <div className="dashboard-card" key={p._id} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -67,7 +68,7 @@ function ClientProjects() {
                 </div>
               </div>
 
-              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>{p.description || "Premium high-rise development."}</p>
+              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>{p.description || "No description available."}</p>
 
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", borderTop: "1px solid #f1f5f9", paddingTop: "8px" }}>
                 <span>Contract Value: <strong style={{ color: "#1e293b" }}>{p.budget}</strong></span>

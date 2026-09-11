@@ -9,10 +9,10 @@ function PMResources() {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    type: "Crane",
+    type: "",
     status: "Operational",
-    operator: "Assigned Lead",
-    location: "Main Zone",
+    operator: "",
+    location: "",
   });
 
   const isAuthorized = canEdit("resources");
@@ -77,7 +77,12 @@ function PMResources() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading resources...</div>
         ) : (
           <div className="machinery-list">
-            {equipment.map((item) => (
+            {equipment.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                No equipment available.
+              </div>
+            ) : (
+            equipment.map((item) => (
               <div className="machinery-item" key={item._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div className="machinery-info">
                   <strong>{item.name}</strong>
@@ -87,7 +92,8 @@ function PMResources() {
                 </div>
                 <span className={`equipment-badge ${item.badge || "status-operational"}`}>{item.status}</span>
               </div>
-            ))}
+            ))
+            )}
           </div>
         )}
       </div>

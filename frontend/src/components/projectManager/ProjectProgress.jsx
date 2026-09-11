@@ -1,13 +1,27 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 
-function ProjectProgress() {
+function ProjectProgress({ data }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If dashboard data was passed via props, use it directly
+    if (Array.isArray(data) && data.length > 0) {
+      setProjects(
+        data.slice(0, 6).map((project) => ({
+          id: project.id || project._id,
+          name: project.name,
+          progress: Number(project.progress) || 0,
+        }))
+      );
+      setLoading(false);
+      return;
+    }
+
     const fetchProjects = async () => {
       try {
+        setLoading(true);
         const response = await api.get("/projects");
 
         if (response.data.success) {
@@ -33,7 +47,7 @@ function ProjectProgress() {
     };
 
     fetchProjects();
-  }, []);
+  }, [data]);
 
   return (
     <div className="project-progress-card">

@@ -1,43 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckSquare, CheckCircle2, Clock } from "lucide-react";
 
-const initialTasks = [
-  {
-    id: 1,
-    title: "Rebar Binding for Column C-12",
-    zone: "Floor 8, East Wing",
-    status: "Completed",
-    done: true,
-  },
-  {
-    id: 2,
-    title: "Mortar Batch Mixing & Quality Check",
-    zone: "Central Mortar Station",
-    status: "In Progress",
-    done: false,
-  },
-  {
-    id: 3,
-    title: "Plaster Base Coat Application (Unit 802)",
-    zone: "Floor 8, Interior",
-    status: "Pending",
-    done: false,
-  },
-  {
-    id: 4,
-    title: "End-of-Day Tool Inventory & Safety Lockup",
-    zone: "Tools Locker #4",
-    status: "Pending",
-    done: false,
-  },
-];
+function WorkerDailyTasks({ tasks = [] }) {
+  const [items, setItems] = useState([]);
 
-function WorkerDailyTasks() {
-  const [tasks, setTasks] = useState(initialTasks);
+  useEffect(() => {
+    if (Array.isArray(tasks)) {
+      setItems(
+        tasks.slice(0, 6).map((t, idx) => {
+          const status = t.status || "Pending";
+          const done =
+            status === "Completed" || status === "Verified" || t.done === true;
+          return {
+            id: t._id || idx + 1,
+            title: t.title || t.phase || "Task",
+            zone: t.zone || "",
+            status: done ? "Completed" : status || "Pending",
+            done,
+          };
+        })
+      );
+    }
+  }, [tasks]);
 
   const toggleTask = (id) => {
-    setTasks(
-      tasks.map((t) =>
+    setItems(
+      items.map((t) =>
         t.id === id
           ? {
               ...t,
@@ -49,7 +37,7 @@ function WorkerDailyTasks() {
     );
   };
 
-  const completedCount = tasks.filter((t) => t.done).length;
+  const completedCount = items.filter((t) => t.done).length;
 
   return (
     <div className="dashboard-card worker-tasks-card">
@@ -59,49 +47,54 @@ function WorkerDailyTasks() {
           <h3>Assigned Duties for Today</h3>
         </div>
         <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>
-          {completedCount} of {tasks.length} Done
+          {completedCount} of {items.length} Done
         </span>
       </div>
 
       <div className="worker-task-list">
-        {tasks.map((task) => (
-          <div
-            className={`worker-task-item ${task.done ? "task-done" : ""}`}
-            key={task.id}
-            onClick={() => toggleTask(task.id)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="task-checkbox-wrap">
-              {task.done ? (
-                <CheckCircle2 size={18} color="#059669" />
-              ) : (
-                <div className="task-unchecked" />
-              )}
-            </div>
+        {items.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#64748b", padding: "16px 0" }}>
+            No tasks assigned yet.
+          </p>
+        ) : (
+          items.map((task) => (
+            <div
+              className={`worker-task-item ${task.done ? "task-done" : ""}`}
+              key={task.id}
+              onClick={() => toggleTask(task.id)}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="task-checkbox-wrap">
+                {task.done ? (
+                  <CheckCircle2 size={18} color="#059669" />
+                ) : (
+                  <div className="task-unchecked" />
+                )}
+              </div>
 
-            <div className="task-text-content">
-              <strong className={task.done ? "text-done" : ""}>
-                {task.title}
-              </strong>
-              <span>Zone: {task.zone}</span>
-            </div>
+              <div className="task-text-content">
+                <strong className={task.done ? "text-done" : ""}>
+                  {task.title}
+                </strong>
+                {task.zone && <span>Zone: {task.zone}</span>}
+              </div>
 
-            <span className={`task-badge ${task.done ? "done" : "pending"}`}>
-              {task.done ? (
-                "Verified"
-              ) : (
-                <>
-                  <Clock size={11} style={{ display: "inline", marginRight: "3px" }} />
-                  {task.status}
-                </>
-              )}
-            </span>
-          </div>
-        ))}
+              <span className={`task-badge ${task.done ? "done" : "pending"}`}>
+                {task.done ? (
+                  "Verified"
+                ) : (
+                  <>
+                    <Clock size={11} style={{ display: "inline", marginRight: "3px" }} />
+                    {task.status}
+                  </>
+                )}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
 
 export default WorkerDailyTasks;
-

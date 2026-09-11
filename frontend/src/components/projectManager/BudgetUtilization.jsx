@@ -10,44 +10,53 @@ import api from "../../services/api";
 
 // ==========================================
 // CONVERT DIFFERENT BUDGET FORMATS TO CRORES
+// Mirrors backend/utils/currency.js
 // ==========================================
 
+const RUPEE_TO_CRORE_DIVISOR = 10000000;
+const LARGE_UNITLESS_THRESHOLD = 100000;
+
 const parseAmountToCrores = (amount) => {
-  if (!amount) return 0;
+  if (amount === null || amount === undefined) return 0;
 
   // Agar database mein number stored hai
   if (typeof amount === "number") {
-    // Agar number bahut bada hai, assume INR hai
-    if (amount >= 1000000) {
-      return amount / 10000000;
+    if (isNaN(amount)) return 0;
+    // Large raw number assumed to be Indian Rupees -> convert to crores
+    if (amount >= LARGE_UNITLESS_THRESHOLD) {
+      return amount / RUPEE_TO_CRORE_DIVISOR;
     }
-
     return amount;
   }
 
+  const str = String(amount).trim();
+  if (!str) return 0;
+
+  const hasCrUnit = /cr|crore/i.test(str);
+
+  // Example: "₹ 15.0 Cr"
   const value = String(amount)
-    .replace(/[₹,\s]/g, "")
-    .toLowerCase();
+    .replace(/₹/g, "")
+    .replace(/,/g, "")
+    .replace(/\s+/g, "")
+    .replace(/crore/gi, "")
+    .replace(/cr/gi, "")
+    .trim();
 
-  // Example: "15Cr"
-  if (value.includes("cr")) {
-    const number = parseFloat(
-      value.replace("cr", "")
-    );
-
-    return isNaN(number) ? 0 : number;
-  }
-
-  // Example: ₹150000000
   const numericValue = parseFloat(value);
 
   if (isNaN(numericValue)) {
     return 0;
   }
 
-  // Large values ko Indian Rupees maan kar Crores mein convert karo
-  if (numericValue >= 1000000) {
-    return numericValue / 10000000;
+  // Explicit "Cr"/"crore" unit -> already in crores
+  if (hasCrUnit) {
+    return numericValue;
+  }
+
+  // Large unitless value assumed to be Indian Rupees -> convert to crores
+  if (numericValue >= LARGE_UNITLESS_THRESHOLD) {
+    return numericValue / RUPEE_TO_CRORE_DIVISOR;
   }
 
   return numericValue;
@@ -63,7 +72,7 @@ const formatCrores = (amount) => {
 };
 
 
-function BudgetUtilization() {
+function BudgetUtilization({ data }) {
   const [budgetData, setBudgetData] = useState({
     totalBudget: 0,
     totalSpent: 0,
@@ -75,8 +84,21 @@ function BudgetUtilization() {
 
 
   useEffect(() => {
+    // If dashboard data was passed via props, use it directly
+    if (data && typeof data === "object" && Object.keys(data).length > 0) {
+      setBudgetData({
+        totalBudget: data.totalBudget ?? 0,
+        totalSpent: data.totalSpent ?? 0,
+        remaining: data.remainingBudget ?? Math.max((data.totalBudget ?? 0) - (data.totalSpent ?? 0), 0),
+        utilization: data.budgetUtilization ?? 0,
+      });
+      setLoading(false);
+      return;
+    }
+
     const fetchBudgetData = async () => {
       try {
+        setLoading(true);
         const response = await api.get("/projects");
 
         if (response.data.success) {
@@ -150,7 +172,7 @@ function BudgetUtilization() {
     };
 
     fetchBudgetData();
-  }, []);
+  }, [data]);
 
 
   // ==========================================

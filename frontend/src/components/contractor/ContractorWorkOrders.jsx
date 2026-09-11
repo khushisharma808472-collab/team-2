@@ -1,86 +1,64 @@
 import { ClipboardList, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const workOrders = [
+const getStatusClass = (status) => {
+  if (status === "Completed" || status === "On Schedule") return "good";
+  if (status === "Delayed" || (status || "").toLowerCase().includes("delay")) return "danger";
+  return "warning";
+};
 
-  {
-    id: "WO-2026-081",
-    title: "RCC Frame Casting - Block C",
-    lead: "Amit Sharma",
-    progress: 82,
-    deadline: "12 Mar 2026",
-    status: "On Schedule",
-    statusClass: "good",
-  },
-  {
-    id: "WO-2026-089",
-    title: "Brick Masonry & Plastering",
-    lead: "Sunil Rawat",
-    progress: 45,
-    deadline: "25 Mar 2026",
-    status: "In Progress",
-    statusClass: "warning",
-  },
-  {
-    id: "WO-2026-092",
-    title: "External Drainage Pipeline",
-    lead: "Karan Patel",
-    progress: 25,
-    deadline: "05 Apr 2026",
-    status: "Delayed (Pipe Supply)",
-    statusClass: "danger",
-  },
-  {
-    id: "WO-2026-095",
-    title: "Internal Electrical Conduit Laying",
-    lead: "Manish Kumar",
-    progress: 60,
-    deadline: "18 Apr 2026",
-    status: "On Schedule",
-    statusClass: "good",
-  },
-];
-
-function ContractorWorkOrders() {
+function ContractorWorkOrders({ workOrders = [] }) {
   const navigate = useNavigate();
-  return (
 
+  const orders = Array.isArray(workOrders) ? workOrders.slice(0, 5) : [];
+
+  return (
     <div className="dashboard-card contractor-orders-card">
       <div className="card-header">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <ClipboardList size={18} color="#3b82f6" />
           <h3>Active Work Orders</h3>
         </div>
-        <span style={{ fontSize: "11px", color: "#64748b" }}>4 Active</span>
+        <span style={{ fontSize: "11px", color: "#64748b" }}>
+          {orders.length} Active
+        </span>
       </div>
 
       <div className="work-orders-list">
-        {workOrders.map((wo) => (
-          <div className="work-order-row" key={wo.id}>
-            <div className="order-main">
-              <div className="order-title-wrap">
-                <span className="order-id">{wo.id}</span>
-                <strong>{wo.title}</strong>
-              </div>
-              <span className="order-meta">Supervisor: {wo.lead} • Due: {wo.deadline}</span>
-            </div>
-
-            <div className="order-progress-wrap">
-              <div className="order-progress-bar">
-                <div
-                  className="order-progress-fill"
-                  style={{ width: `${wo.progress}%` }}
-                />
-              </div>
-              <div className="order-status-row">
-                <span className={`order-status-badge ${wo.statusClass}`}>
-                  {wo.status}
+        {orders.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#64748b", padding: "16px 0" }}>
+            No work orders assigned yet.
+          </p>
+        ) : (
+          orders.map((wo) => (
+            <div className="work-order-row" key={wo._id || wo.orderId}>
+              <div className="order-main">
+                <div className="order-title-wrap">
+                  <span className="order-id">{wo.orderId}</span>
+                  <strong>{wo.title}</strong>
+                </div>
+                <span className="order-meta">
+                  Supervisor: {wo.lead} • Due: {wo.deadline}
                 </span>
-                <span className="order-pct">{wo.progress}%</span>
+              </div>
+
+              <div className="order-progress-wrap">
+                <div className="order-progress-bar">
+                  <div
+                    className="order-progress-fill"
+                    style={{ width: `${wo.progress || 0}%` }}
+                  />
+                </div>
+                <div className="order-status-row">
+                  <span className={`order-status-badge ${getStatusClass(wo.status)}`}>
+                    {wo.status}
+                  </span>
+                  <span className="order-pct">{wo.progress || 0}%</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <button
@@ -96,5 +74,3 @@ function ContractorWorkOrders() {
 }
 
 export default ContractorWorkOrders;
-
-

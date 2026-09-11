@@ -12,14 +12,20 @@ function ContractorWorkOrdersPage() {
   const [formData, setFormData] = useState({
     title: "",
     trade: "RCC Frame Casting",
-    lead: "Amit Sharma",
-    deadline: "30 Mar 2026",
+    lead: "",
+    deadline: "",
     progress: 50,
     status: "In Progress",
-    zone: "Block C Core",
+    zone: "",
   });
 
   const isAuthorized = canEdit("work_orders");
+
+  const uniqueLeads = new Set(workOrders.map((w) => w.lead).filter(Boolean)).size;
+  const avgCompletion =
+    workOrders.length > 0
+      ? Math.round(workOrders.reduce((t, w) => t + (Number(w.progress) || 0), 0) / workOrders.length)
+      : 0;
 
   const fetchWorkOrders = async () => {
     try {
@@ -44,11 +50,11 @@ function ContractorWorkOrdersPage() {
     setFormData({
       title: "",
       trade: "RCC Frame Casting",
-      lead: "Amit Sharma",
-      deadline: "30 Apr 2026",
+      lead: "",
+      deadline: "",
       progress: 10,
       status: "In Progress",
-      zone: "Block C Core",
+      zone: "",
     });
     setShowModal(true);
   };
@@ -119,21 +125,21 @@ function ContractorWorkOrdersPage() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL WORK PACKAGES" value={String(workOrders.length || 4)} change="Active" type="projects" />
+        <StatCard title="TOTAL WORK PACKAGES" value={String(workOrders.length)} change="Active" type="projects" />
         <StatCard
           title="ON SCHEDULE"
-          value={String(workOrders.filter((w) => w.status === "On Schedule").length || 2)}
-          change="Optimal"
+          value={String(workOrders.filter((w) => w.status === "On Schedule").length)}
+          change="Live"
           type="active"
         />
         <StatCard
           title="DELAYED PACKAGES"
-          value={String(workOrders.filter((w) => w.status === "Delayed").length || 1)}
-          change="Pipe supply"
+          value={String(workOrders.filter((w) => w.status === "Delayed").length)}
+          change="Action needed"
           type="alerts"
         />
-        <StatCard title="ASSIGNED LEADS" value="4 Foremen" change="Full shift" type="users" />
-        <StatCard title="AVG COMPLETION" value="58%" change="Q1 Target" type="pending" />
+        <StatCard title="ASSIGNED LEADS" value={String(uniqueLeads)} change="Assigned" type="users" />
+        <StatCard title="AVG COMPLETION" value={`${avgCompletion}%`} change="Across packages" type="pending" />
       </div>
 
       <div className="dashboard-card contractor-orders-card" style={{ maxWidth: "800px" }}>
@@ -149,48 +155,52 @@ function ContractorWorkOrdersPage() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading work orders...</div>
         ) : (
           <div className="work-orders-list">
-            {workOrders.map((wo) => (
-              <div className="work-order-row" key={wo._id}>
-                <div className="order-main">
-                  <div className="order-title-wrap">
-                    <span className="order-id">{wo.orderId}</span>
-                    <strong>{wo.title}</strong>
-                  </div>
-                  <span className="order-meta">
-                    Lead: {wo.lead} • Trade: {wo.trade} • Due: {wo.deadline}
-                  </span>
-                </div>
-
-                <div className="order-progress-wrap" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div className="order-progress-bar">
-                    <div className="order-progress-fill" style={{ width: `${wo.progress}%` }} />
-                  </div>
-                  <div className="order-status-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span className={`order-status-badge ${wo.statusClass || "good"}`}>{wo.status}</span>
-                    <span className="order-pct">{wo.progress}%</span>
-                  </div>
-
-                  {isAuthorized && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "6px", marginTop: "4px" }}>
-                      <button
-                        className="menu-item"
-                        style={{ width: "auto", height: "24px", padding: "0 6px", fontSize: "11px" }}
-                        onClick={() => handleOpenEdit(wo)}
-                      >
-                        <Edit2 size={12} />
-                      </button>
-                      <button
-                        className="menu-item"
-                        style={{ width: "auto", height: "24px", padding: "0 6px", fontSize: "11px", color: "#ef4444" }}
-                        onClick={() => handleDelete(wo._id)}
-                      >
-                        <Trash2 size={12} />
-                      </button>
+            {workOrders.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No work orders available.</div>
+            ) : (
+              workOrders.map((wo) => (
+                <div className="work-order-row" key={wo._id}>
+                  <div className="order-main">
+                    <div className="order-title-wrap">
+                      <span className="order-id">{wo.orderId}</span>
+                      <strong>{wo.title}</strong>
                     </div>
-                  )}
+                    <span className="order-meta">
+                      Lead: {wo.lead} • Trade: {wo.trade} • Due: {wo.deadline}
+                    </span>
+                  </div>
+
+                  <div className="order-progress-wrap" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <div className="order-progress-bar">
+                      <div className="order-progress-fill" style={{ width: `${wo.progress}%` }} />
+                    </div>
+                    <div className="order-status-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span className={`order-status-badge ${wo.statusClass || "good"}`}>{wo.status}</span>
+                      <span className="order-pct">{wo.progress}%</span>
+                    </div>
+
+                    {isAuthorized && (
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "6px", marginTop: "4px" }}>
+                        <button
+                          className="menu-item"
+                          style={{ width: "auto", height: "24px", padding: "0 6px", fontSize: "11px" }}
+                          onClick={() => handleOpenEdit(wo)}
+                        >
+                          <Edit2 size={12} />
+                        </button>
+                        <button
+                          className="menu-item"
+                          style={{ width: "auto", height: "24px", padding: "0 6px", fontSize: "11px", color: "#ef4444" }}
+                          onClick={() => handleDelete(wo._id)}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>

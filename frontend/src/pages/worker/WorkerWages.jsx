@@ -5,65 +5,16 @@ function WorkerWages() {
   const [selectedCycle, setSelectedCycle] = useState(null);
 
   const wageSummary = {
-    hourlyRate: 28.5,
-    hoursThisMonth: 168,
-    overtimeHours: 14.5,
-    grossEarnings: 5400.75,
-    taxesDeductions: 540.08,
-    netPay: 4860.67,
-    nextPayday: "Sep 15, 2026",
+    hourlyRate: 0,
+    hoursThisMonth: 0,
+    overtimeHours: 0,
+    grossEarnings: 0,
+    taxesDeductions: 0,
+    netPay: 0,
+    nextPayday: "--",
   };
 
-  const payCycles = [
-    {
-      id: "PAY-2026-08B",
-      period: "Aug 16 - Aug 31, 2026",
-      regularHours: 80,
-      otHours: 8.5,
-      rate: "$28.50/hr",
-      gross: "$2,643.38",
-      net: "$2,379.04",
-      status: "Paid",
-      payDate: "Aug 31, 2026",
-      account: "Direct Deposit (****4819)",
-    },
-    {
-      id: "PAY-2026-08A",
-      period: "Aug 01 - Aug 15, 2026",
-      regularHours: 80,
-      otHours: 6.0,
-      rate: "$28.50/hr",
-      gross: "$2,536.50",
-      net: "$2,282.85",
-      status: "Paid",
-      payDate: "Aug 15, 2026",
-      account: "Direct Deposit (****4819)",
-    },
-    {
-      id: "PAY-2026-07B",
-      period: "Jul 16 - Jul 31, 2026",
-      regularHours: 80,
-      otHours: 12.0,
-      rate: "$28.00/hr",
-      gross: "$2,744.00",
-      net: "$2,469.60",
-      status: "Paid",
-      payDate: "Jul 31, 2026",
-      account: "Direct Deposit (****4819)",
-    },
-    {
-      id: "PAY-2026-07A",
-      period: "Jul 01 - Jul 15, 2026",
-      regularHours: 80,
-      otHours: 4.5,
-      rate: "$28.00/hr",
-      gross: "$2,429.00",
-      net: "$2,186.10",
-      status: "Paid",
-      payDate: "Jul 15, 2026",
-      account: "Direct Deposit (****4819)",
-    },
-  ];
+  const payCycles = [];
 
   const handleDownload = (cycle) => {
     alert(`Downloading PDF wage slip for pay cycle: ${cycle.id} (${cycle.period})`);
@@ -78,7 +29,7 @@ function WorkerWages() {
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <span className="status-pill good" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", fontSize: "12px" }}>
-            <CheckCircle2 size={16} /> Direct Deposit Active
+            <CheckCircle2 size={16} /> No wage records
           </span>
         </div>
       </div>
@@ -147,7 +98,14 @@ function WorkerWages() {
               </tr>
             </thead>
             <tbody>
-              {payCycles.map((cycle) => (
+              {payCycles.length === 0 ? (
+                <tr>
+                  <td colSpan="8" style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                    No wage records available.
+                  </td>
+                </tr>
+              ) : (
+                payCycles.map((cycle) => (
                 <tr key={cycle.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                   <td style={{ padding: "12px 10px", fontWeight: "600", color: "#1e293b" }}>{cycle.id}</td>
                   <td style={{ padding: "12px 10px", color: "#475569" }}>{cycle.period}</td>
@@ -181,7 +139,8 @@ function WorkerWages() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

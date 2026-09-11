@@ -7,7 +7,7 @@ const {
 
 const {
   protect,
-  adminOnly,
+  authorize,
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -18,17 +18,18 @@ const router = express.Router();
 router.get(
   "/dashboard",
   protect,
-  adminOnly,
+  authorize("admin"),
   getDashboardData
 );
 
 
 // ================= SITE PROGRESS =================
+// Shared with Site Engineers (their widgets use this endpoint)
 
 router.get(
   "/site-progress",
   protect,
-  adminOnly,
+  authorize("admin", "site_engineer"),
   getSiteProgressData
 );
 

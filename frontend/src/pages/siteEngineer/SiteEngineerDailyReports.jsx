@@ -11,7 +11,7 @@ function SiteEngineerDailyReports() {
   const [formData, setFormData] = useState({
     title: "",
     type: "Daily Progress",
-    location: "Tower A - Core",
+    location: "",
     summary: "",
     snagsFound: 0,
   });
@@ -74,11 +74,11 @@ function SiteEngineerDailyReports() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="DAILY LOGS FILED" value={String(reports.length || 3)} change="100% on time" type="projects" />
-        <StatCard title="SITE CREW LOGGED" value="168 Workers" change="Active" type="users" />
-        <StatCard title="WEATHER CONDITIONS" value="Clear (32°C)" change="No disruption" type="active" />
-        <StatCard title="DAILY CONCRETE CAST" value="65 m³" change="M25 grade" type="pending" />
-        <StatCard title="SUPERVISOR SIGN-OFFS" value="4 Verified" change="Full shift" type="alerts" />
+        <StatCard title="DAILY LOGS FILED" value={String(reports.length)} change="No data" type="projects" />
+        <StatCard title="SITE CREW LOGGED" value="0" change="No data" type="users" />
+        <StatCard title="WEATHER CONDITIONS" value="N/A" change="No data" type="active" />
+        <StatCard title="DAILY CONCRETE CAST" value="0 m³" change="No data" type="pending" />
+        <StatCard title="SUPERVISOR SIGN-OFFS" value="0 Verified" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-card" style={{ maxWidth: "800px" }}>
@@ -94,7 +94,10 @@ function SiteEngineerDailyReports() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading daily reports...</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {reports.map((rep) => (
+            {reports.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No daily reports available.</div>
+            ) : (
+            reports.map((rep) => (
               <div
                 key={rep._id}
                 style={{
@@ -117,7 +120,8 @@ function SiteEngineerDailyReports() {
                   <span>Logged on: {rep.date} by {rep.author}</span>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         )}
       </div>

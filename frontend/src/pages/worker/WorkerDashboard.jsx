@@ -1,12 +1,17 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../../components/dashboard/StatCard";
 import WorkerShiftInfo from "../../components/worker/WorkerShiftInfo";
 import WorkerDailyTasks from "../../components/worker/WorkerDailyTasks";
 import WorkerSafetyChecklist from "../../components/worker/WorkerSafetyChecklist";
 import { LogOut, AlertOctagon, Wallet, Calendar } from "lucide-react";
+import api from "../../services/api";
 
 function WorkerDashboard() {
   const navigate = useNavigate();
+
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const getUserName = () => {
     try {
@@ -23,6 +28,41 @@ function WorkerDashboard() {
   };
   const userName = getUserName();
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get("/dashboard/worker");
+
+        if (response.data.success) {
+          setDashboardData(response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch Worker dashboard:",
+          error.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const stats = dashboardData?.stats || {};
+  const todayRecord = dashboardData?.todayRecord || null;
+
+  const shiftInfo = {
+    site: todayRecord?.site || stats.assignedSite || "Assigned Site",
+    checkIn: todayRecord?.checkIn || stats.checkIn || "--",
+    checkOut: todayRecord?.checkOut || "--",
+    shift: todayRecord?.shift || stats.shift || "Day Shift",
+    trade: todayRecord?.trade || "Site Duty",
+    punchedIn: Boolean(todayRecord?.checkIn && todayRecord.checkIn !== "--"),
+  };
+
   return (
     <>
       {/* WELCOME SECTION */}
@@ -33,7 +73,12 @@ function WorkerDashboard() {
         </div>
 
         <button className="date-button">
-          📅 Today, 26 Aug 2026
+          📅 Today,{" "}
+          {new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
         </button>
       </div>
 
@@ -41,32 +86,32 @@ function WorkerDashboard() {
       <div className="stats-grid">
         <StatCard
           title="ASSIGNED SITE"
-          value="Tower A"
-          change="Floor 8 Core"
+          value={stats.assignedSite || "Assigned Site"}
+          change="Active"
           type="projects"
         />
         <StatCard
-          title="TODAY'S SHIFT"
-          value="Punched In"
-          change="07:52 AM"
+          title="TODAY'S STATUS"
+          value={shiftInfo.punchedIn ? "Punched In" : "Not Punched"}
+          change={shiftInfo.checkIn}
           type="active"
         />
         <StatCard
-          title="HOURS THIS WEEK"
-          value="36.5h"
-          change="+2h OT"
+          title="PENDING TASKS"
+          value={stats.pendingTasks ?? 0}
+          change={`${stats.completedTasks ?? 0} completed`}
           type="users"
         />
         <StatCard
-          title="MONTHLY ATTENDANCE"
-          value="22 / 24 Days"
-          change="91.6%"
+          title="ATTENDANCE TODAY"
+          value={shiftInfo.punchedIn ? "Punched" : "Pending"}
+          change={`${stats.attendanceRate ?? 0}% rate`}
           type="pending"
         />
         <StatCard
           title="SAFETY COMPLIANCE"
-          value="100%"
-          change="PPE Verified"
+          value={`${stats.safetyCompliance ?? 0}%`}
+          change="Pending"
           type="alerts"
         />
       </div>
@@ -74,13 +119,13 @@ function WorkerDashboard() {
       {/* MAIN WIDGETS GRID */}
       <div className="dashboard-grid role-grid">
         {/* 1. Shift & Duty Details */}
-        <WorkerShiftInfo />
+        <WorkerShiftInfo data={shiftInfo} />
 
         {/* 2. Daily Tasks Checklist */}
-        <WorkerDailyTasks />
+        <WorkerDailyTasks tasks={dashboardData?.tasks || []} />
 
         {/* 3. Safety Clearance & PPE */}
-        <WorkerSafetyChecklist />
+        <WorkerSafetyChecklist clearedPercent={stats.safetyCompliance ?? 0} />
 
         {/* 4. Worker Quick Actions */}
         <div className="dashboard-card quick-actions-card">

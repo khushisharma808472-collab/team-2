@@ -62,34 +62,38 @@ function ContractorNotifications() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading notifications...</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {notifications.map((n) => {
-              const Icon = n.type === "warning" ? AlertTriangle : n.type === "success" ? CheckCircle2 : Info;
-              return (
-                <div
-                  key={n._id}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "12px",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    background: n.read ? "#f8fafc" : "#fffbeb",
-                    border: n.read ? "1px solid #f1f5f9" : "1px solid #fde68a",
-                  }}
-                >
-                  <div className={`activity-icon ${n.type === "warning" ? "role" : "project"}`}>
-                    <Icon size={16} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <strong style={{ fontSize: "13px", color: "#1e293b" }}>{n.title}</strong>
-                      <span style={{ fontSize: "10px", color: "#94a3b8" }}>{n.time}</span>
+            {notifications.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No notifications available.</div>
+            ) : (
+              notifications.map((n) => {
+                const Icon = n.type === "warning" ? AlertTriangle : n.type === "success" ? CheckCircle2 : Info;
+                return (
+                  <div
+                    key={n._id}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "12px",
+                      padding: "12px",
+                      borderRadius: "8px",
+                      background: n.read ? "#f8fafc" : "#fffbeb",
+                      border: n.read ? "1px solid #f1f5f9" : "1px solid #fde68a",
+                    }}
+                  >
+                    <div className={`activity-icon ${n.type === "warning" ? "role" : "project"}`}>
+                      <Icon size={16} />
                     </div>
-                    <p style={{ margin: "4px 0 0", fontSize: "11px", color: "#64748b" }}>{n.message}</p>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <strong style={{ fontSize: "13px", color: "#1e293b" }}>{n.title}</strong>
+                        <span style={{ fontSize: "10px", color: "#94a3b8" }}>{n.time}</span>
+                      </div>
+                      <p style={{ margin: "4px 0 0", fontSize: "11px", color: "#64748b" }}>{n.message}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         )}
       </div>

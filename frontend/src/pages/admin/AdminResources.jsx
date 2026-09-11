@@ -84,21 +84,21 @@ function AdminResources() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL FLEET" value={String(equipment.length || 5)} change="Tracked" type="projects" />
+        <StatCard title="TOTAL FLEET" value={String(equipment.length)} change="Tracked" type="projects" />
         <StatCard
           title="OPERATIONAL"
-          value={String(equipment.filter((e) => e.status === "Operational" || e.status === "In Use").length || 3)}
-          change="85% uptime"
+          value={String(equipment.filter((e) => e.status === "Operational" || e.status === "In Use").length)}
+          change="Active"
           type="active"
         />
         <StatCard
           title="UNDER MAINTENANCE"
-          value={String(equipment.filter((e) => e.status === "Maintenance").length || 1)}
-          change="Bay B"
+          value={String(equipment.filter((e) => e.status === "Maintenance").length)}
+          change="Maintenance"
           type="alerts"
         />
-        <StatCard title="CERTIFIED OPERATORS" value="14 Personnel" change="100% active" type="users" />
-        <StatCard title="FUEL EFFICIENCY" value="94.2%" change="Optimal" type="pending" />
+        <StatCard title="CERTIFIED OPERATORS" value="0" change="No data" type="users" />
+        <StatCard title="FUEL EFFICIENCY" value="0%" change="No data" type="pending" />
       </div>
 
       <div className="dashboard-card" style={{ padding: "20px" }}>
@@ -114,7 +114,10 @@ function AdminResources() {
           <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>Loading machinery...</div>
         ) : (
           <div className="machinery-list">
-            {equipment.map((item) => {
+            {equipment.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No machinery available.</div>
+            ) : (
+              equipment.map((item) => {
               const Icon =
                 item.status === "Maintenance"
                   ? Wrench
@@ -149,7 +152,8 @@ function AdminResources() {
                   </div>
                 </div>
               );
-            })}
+              }))
+            }
           </div>
         )}
       </div>

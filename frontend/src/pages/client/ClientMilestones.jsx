@@ -41,20 +41,19 @@ function ClientMilestones() {
           <h1>Project Construction Milestones 🚩</h1>
           <p>Verify completion stages, review independent engineer audits, and approve milestone disbursements.</p>
         </div>
-        <button className="date-button">📅 Skyline Heights - Tower A</button>
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL MILESTONES" value={String(milestones.length || 5)} change="Full Project" type="projects" />
+        <StatCard title="TOTAL MILESTONES" value={String(milestones.length)} change="Full Project" type="projects" />
         <StatCard
           title="CLIENT APPROVED"
-          value={String(milestones.filter((m) => m.clientApproved).length || 1)}
+          value={String(milestones.filter((m) => m.clientApproved).length)}
           change="Signed off"
           type="active"
         />
-        <StatCard title="CURRENT STAGE" value="Phase 2 (85%)" change="Level 12 Slab" type="users" />
-        <StatCard title="NEXT DISBURSEMENT" value="₹ 1.2 Cr" change="On Slab Signoff" type="pending" />
-        <StatCard title="QUALITY CLEARANCE" value="100%" change="Third-party audit" type="alerts" />
+        <StatCard title="CURRENT STAGE" value="No data" change="No data" type="users" />
+        <StatCard title="NEXT DISBURSEMENT" value="₹ 0" change="No data" type="pending" />
+        <StatCard title="QUALITY CLEARANCE" value="0%" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-card" style={{ maxWidth: "800px" }}>
@@ -70,55 +69,59 @@ function ClientMilestones() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading milestones...</div>
         ) : (
           <div className="client-timeline-list">
-            {milestones.map((m, idx) => (
-              <div className="timeline-row" key={m._id} style={{ alignItems: "center" }}>
-                <div className={`timeline-marker ${m.progress === 100 ? "good" : "progress"}`}>
-                  {m.progress === 100 ? <CheckCircle2 size={14} /> : <span>{idx + 1}</span>}
-                </div>
+            {milestones.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No milestones available.</div>
+            ) : (
+              milestones.map((m, idx) => (
+                <div className="timeline-row" key={m._id} style={{ alignItems: "center" }}>
+                  <div className={`timeline-marker ${m.progress === 100 ? "good" : "progress"}`}>
+                    {m.progress === 100 ? <CheckCircle2 size={14} /> : <span>{idx + 1}</span>}
+                  </div>
 
-                <div className="timeline-content" style={{ flex: 1 }}>
-                  <div className="timeline-header">
-                    <strong>{m.phase}</strong>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span className={`timeline-badge ${m.progress === 100 ? "good" : "progress"}`}>
-                        {m.clientApproved ? "Client Approved" : m.status}
+                  <div className="timeline-content" style={{ flex: 1 }}>
+                    <div className="timeline-header">
+                      <strong>{m.phase}</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span className={`timeline-badge ${m.progress === 100 ? "good" : "progress"}`}>
+                          {m.clientApproved ? "Client Approved" : m.status}
+                        </span>
+                        {!m.clientApproved && m.progress >= 80 && (
+                          <button
+                            className="date-button"
+                            style={{
+                              background: "#059669",
+                              color: "#ffffff",
+                              border: "none",
+                              padding: "4px 10px",
+                              fontSize: "11px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                            }}
+                            onClick={() => handleApprove(m._id)}
+                          >
+                            <Check size={12} /> Sign-off
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="timeline-track" style={{ margin: "6px 0" }}>
+                      <div className="timeline-fill good" style={{ width: `${m.progress}%` }} />
+                    </div>
+
+                    <div className="timeline-footer">
+                      <span className="timeline-date">
+                        <Calendar size={12} style={{ display: "inline", marginRight: "4px" }} />
+                        {m.date}
                       </span>
-                      {!m.clientApproved && m.progress >= 80 && (
-                        <button
-                          className="date-button"
-                          style={{
-                            background: "#059669",
-                            color: "#ffffff",
-                            border: "none",
-                            padding: "4px 10px",
-                            fontSize: "11px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                          }}
-                          onClick={() => handleApprove(m._id)}
-                        >
-                          <Check size={12} /> Sign-off
-                        </button>
-                      )}
+                      <span>Stage Value: <strong>{m.amount}</strong></span>
+                      <span className="timeline-pct">{m.progress}%</span>
                     </div>
                   </div>
-
-                  <div className="timeline-track" style={{ margin: "6px 0" }}>
-                    <div className="timeline-fill good" style={{ width: `${m.progress}%` }} />
-                  </div>
-
-                  <div className="timeline-footer">
-                    <span className="timeline-date">
-                      <Calendar size={12} style={{ display: "inline", marginRight: "4px" }} />
-                      {m.date}
-                    </span>
-                    <span>Stage Value: <strong>{m.amount}</strong></span>
-                    <span className="timeline-pct">{m.progress}%</span>
-                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>

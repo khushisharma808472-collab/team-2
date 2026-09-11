@@ -1,28 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Clock, Plus, Users, UserCheck } from "lucide-react";
+import API from "../../services/api";
 import StatCard from "../../components/dashboard/StatCard";
 
-const initialShifts = [
-  { id: 1, name: "Day Shift A - RCC & Framing", timing: "08:00 AM – 05:00 PM", crewCount: 92, supervisor: "Amit Sharma", zone: "Tower A Core" },
-  { id: 2, name: "Day Shift B - Electrical & MEP", timing: "08:30 AM – 05:30 PM", crewCount: 46, supervisor: "Manish Kumar", zone: "Floors 4-8" },
-  { id: 3, name: "Night Shift - Concrete Pouring", timing: "08:00 PM – 04:00 AM", crewCount: 30, supervisor: "Vikas Verma", zone: "Basement Slab" },
-];
-
 function ContractorShifts() {
-  const [shifts, setShifts] = useState(initialShifts);
+  const [shifts, setShifts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     timing: "08:00 AM – 05:00 PM",
     crewCount: 25,
-    supervisor: "Supervisor Lead",
-    zone: "Zone B",
+    supervisor: "",
+    zone: "",
   });
 
-  const handleAdd = (e) => {
+  const fetchShifts = async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/shifts");
+      if (res.data?.data) {
+        setShifts(res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchShifts();
+  }, []);
+
+  const handleAdd = async (e) => {
     e.preventDefault();
-    setShifts([...shifts, { ...formData, id: Date.now() }]);
-    setShowModal(false);
+    try {
+      await API.post("/shifts", formData);
+      setShowModal(false);
+      fetchShifts();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to add shift");
+    }
   };
 
   return (
@@ -50,34 +69,40 @@ function ContractorShifts() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="ACTIVE SHIFTS" value="2 Operating" change="Day & Night" type="projects" />
-        <StatCard title="DAY SHIFT CREW" value="138 Crew" change="On duty" type="active" />
-        <StatCard title="NIGHT SHIFT CREW" value="30 Crew" change="Pouring batch" type="pending" />
-        <StatCard title="TOTAL HOURS TODAY" value="1,344 Hrs" change="Standard 8h" type="users" />
-        <StatCard title="SUPERVISOR COVERAGE" value="100%" change="3 Foremen" type="alerts" />
+        <StatCard title="ACTIVE SHIFTS" value={String(shifts.length)} change="Scheduled" type="projects" />
+        <StatCard title="DAY SHIFT CREW" value="0" change="No data" type="active" />
+        <StatCard title="NIGHT SHIFT CREW" value="0" change="No data" type="pending" />
+        <StatCard title="TOTAL HOURS TODAY" value="0 Hours" change="No data" type="users" />
+        <StatCard title="SUPERVISOR COVERAGE" value="0%" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid role-grid">
-        {shifts.map((s) => (
-          <div className="dashboard-card" key={s.id} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span className="status-pill good">Active Shift</span>
-              <span style={{ fontSize: "11px", color: "#64748b" }}>{s.zone}</span>
-            </div>
+        {loading ? (
+          <div style={{ padding: "30px", textAlign: "center" }}>Loading shifts...</div>
+        ) : shifts.length === 0 ? (
+          <div style={{ gridColumn: "1 / -1", padding: "30px", textAlign: "center", color: "#64748b" }}>No shifts available.</div>
+        ) : (
+          shifts.map((s) => (
+            <div className="dashboard-card" key={s._id || s.id} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="status-pill good">Active Shift</span>
+                <span style={{ fontSize: "11px", color: "#64748b" }}>{s.zone}</span>
+              </div>
 
-            <h3 style={{ margin: "2px 0", fontSize: "14px", color: "#1e293b" }}>{s.name}</h3>
+              <h3 style={{ margin: "2px 0", fontSize: "14px", color: "#1e293b" }}>{s.name}</h3>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#475569" }}>
-              <Clock size={14} color="#d97706" />
-              <strong>{s.timing}</strong>
-            </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#475569" }}>
+                <Clock size={14} color="#d97706" />
+                <strong>{s.timing}</strong>
+              </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", borderTop: "1px solid #f1f5f9", paddingTop: "8px" }}>
-              <span>Supervisor: <strong>{s.supervisor}</strong></span>
-              <span>Crew: <strong>{s.crewCount} Workers</strong></span>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#64748b", borderTop: "1px solid #f1f5f9", paddingTop: "8px" }}>
+                <span>Supervisor: <strong>{s.supervisor}</strong></span>
+                <span>Crew: <strong>{s.crewCount} Workers</strong></span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {showModal && (

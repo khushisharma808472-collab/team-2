@@ -73,7 +73,12 @@ function PMNotifications() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading notifications...</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {notifications.map((n) => {
+            {notifications.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                No notifications available.
+              </div>
+            ) : (
+            notifications.map((n) => {
               const Icon = n.type === "warning" ? AlertTriangle : n.type === "success" ? CheckCircle2 : Info;
               return (
                 <div
@@ -106,7 +111,8 @@ function PMNotifications() {
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         )}
       </div>

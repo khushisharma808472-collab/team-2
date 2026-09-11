@@ -1,34 +1,8 @@
 const Project = require("../models/Project");
 
-// =====================================================
-// HELPER: PARSE BUDGET AMOUNT
-// Examples:
-// ₹ 15.0 Cr -> 15
-// ₹15 Cr -> 15
-// 12.5 -> 12.5
-// =====================================================
+const { parseAmountToCrores } = require("../utils/currency");
 
-const parseAmount = (amount) => {
-  if (amount === null || amount === undefined) {
-    return 0;
-  }
-
-  // If amount is already a number
-  if (typeof amount === "number") {
-    return isNaN(amount) ? 0 : amount;
-  }
-
-  const amountString = String(amount)
-    .replace(/₹/g, "")
-    .replace(/,/g, "")
-    .replace(/\s/g, "")
-    .replace(/cr/gi, "")
-    .trim();
-
-  const value = parseFloat(amountString);
-
-  return isNaN(value) ? 0 : value;
-};
+const parseAmount = parseAmountToCrores;
 
 // =====================================================
 // GET ALL PROJECTS
@@ -243,13 +217,23 @@ const getProjectDashboardData = async (req, res) => {
       show projects assigned to that manager.
 
       Admin can see all projects.
+
+      If the manager's name does not match any project
+      (e.g. freshly registered user), fall back to all
+      projects so the dashboard is never empty.
     */
 
     if (
       req.user &&
       req.user.role === "project_manager"
     ) {
-      query.manager = req.user.name;
+      const assignedCount = await Project.countDocuments({
+        manager: req.user.name,
+      });
+
+      if (assignedCount > 0) {
+        query.manager = req.user.name;
+      }
     }
 
     const projects = await Project.find(query)

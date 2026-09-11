@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../../components/dashboard/StatCard";
 import SiteProgressCategories from "../../components/siteEngineer/SiteProgressCategories";
@@ -5,9 +6,13 @@ import SiteDelayTracker from "../../components/siteEngineer/SiteDelayTracker";
 import EquipmentStatusWidget from "../../components/siteEngineer/EquipmentStatusWidget";
 import SiteActivityLogs from "../../components/siteEngineer/SiteActivityLogs";
 import { PlusCircle, FileText, AlertTriangle, HardHat } from "lucide-react";
+import api from "../../services/api";
 
 function SiteEngineerDashboard() {
   const navigate = useNavigate();
+
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const getUserName = () => {
     try {
@@ -24,6 +29,31 @@ function SiteEngineerDashboard() {
   };
   const userName = getUserName();
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get("/dashboard/site-engineer");
+
+        if (response.data.success) {
+          setDashboardData(response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch Site Engineer dashboard:",
+          error.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const stats = dashboardData?.stats || {};
+
   return (
     <>
       {/* WELCOME SECTION */}
@@ -34,40 +64,45 @@ function SiteEngineerDashboard() {
         </div>
 
         <button className="date-button">
-          📅 Today, 26 Aug 2026
+          📅 Today,{" "}
+          {new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
         </button>
       </div>
 
       {/* KPI STATISTICS */}
       <div className="stats-grid">
         <StatCard
-          title="ASSIGNED ZONES"
-          value="4 Sites"
+          title="ASSIGNED SITES"
+          value={`${stats.totalProjects ?? 0} Sites`}
           change="Active"
           type="projects"
         />
         <StatCard
           title="OVERALL COMPLETION"
-          value="72.4%"
-          change="4.2%"
+          value={`${stats.averageCompletion ?? 0}%`}
+          change={loading ? "Loading" : "Live"}
           type="active"
         />
         <StatCard
           title="INSPECTIONS TODAY"
-          value="18"
-          change="94% pass"
+          value={stats.inspectionsToday ?? 0}
+          change={loading ? "Loading" : "Live"}
           type="users"
         />
         <StatCard
           title="SITE DELAYS / ISSUES"
-          value="3"
-          change="2 critical"
+          value={stats.activeDelays ?? 0}
+          change={`${stats.criticalDelays ?? 0} critical`}
           type="alerts"
         />
         <StatCard
           title="MACHINERY ON SITE"
-          value="12 Units"
-          change="85% uptime"
+          value={`${stats.machineryOnSite ?? 0} Units`}
+          change={loading ? "Loading" : `${stats.equipmentTotal ?? 0} logged`}
           type="pending"
         />
       </div>
@@ -81,10 +116,13 @@ function SiteEngineerDashboard() {
         <SiteDelayTracker />
 
         {/* 3. Site Activity & Inspection Logs */}
-        <SiteActivityLogs />
+        <SiteActivityLogs logs={dashboardData?.recentActivities || []} />
 
         {/* 4. Machinery & Equipment Availability */}
-        <EquipmentStatusWidget />
+        <EquipmentStatusWidget
+          equipment={dashboardData?.equipment || []}
+          count={stats.equipmentTotal ?? 0}
+        />
 
         {/* 5. Site Quick Actions */}
         <div className="dashboard-card quick-actions-card">

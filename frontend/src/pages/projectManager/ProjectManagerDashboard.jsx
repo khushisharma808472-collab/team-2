@@ -10,6 +10,21 @@ function ProjectManagerDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const getUserName = () => {
+    try {
+      const storedUser =
+        localStorage.getItem("user") || sessionStorage.getItem("user");
+      const user = storedUser ? JSON.parse(storedUser) : null;
+      if (user && user.role === "project_manager" && user.name) {
+        return user.name;
+      }
+    } catch {
+      // fallback
+    }
+    return "Project Manager";
+  };
+  const userName = getUserName();
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -46,7 +61,7 @@ function ProjectManagerDashboard() {
   return (
     <>
       <div className="pm-welcome-section">
-        <h1>Good Morning, Project Manager! 👋</h1>
+        <h1>Welcome back, {userName}! 👋</h1>
 
         <p>
           Here's what's happening with your projects today.

@@ -1,13 +1,25 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Receipt } from "lucide-react";
 
-const financialData = [
-  { name: "Paid to Date", value: 68, amount: "₹ 6.8 Cr", color: "#10b981" },
-  { name: "Invoiced / Due", value: 14, amount: "₹ 1.4 Cr", color: "#f59e0b" },
-  { name: "Remaining Budget", value: 18, amount: "₹ 1.8 Cr", color: "#7c3aed" },
-];
+function ClientFinancialOverview({ data }) {
+  const budgetData = data || {};
 
-function ClientFinancialOverview() {
+  const totalBudget = Number(budgetData.totalBudget) || 0;
+  const totalSpent = Number(budgetData.totalSpent) || 0;
+  const remainingBudget = Number(budgetData.remainingBudget) || Math.max(totalBudget - totalSpent, 0);
+  const utilization =
+    Number(budgetData.budgetUtilization) ||
+    (totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0);
+
+  const totalBudgetLabel = budgetData.totalBudgetLabel || `₹ ${totalBudget.toFixed(1)} Cr`;
+  const totalSpentLabel = budgetData.totalSpentLabel || `₹ ${totalSpent.toFixed(1)} Cr`;
+  const remainingBudgetLabel = budgetData.remainingBudgetLabel || `₹ ${remainingBudget.toFixed(1)} Cr`;
+
+  const financialData = [
+    { name: "Paid to Date", value: totalSpent, amount: totalSpentLabel, color: "#10b981" },
+    { name: "Remaining Budget", value: remainingBudget, amount: remainingBudgetLabel, color: "#7c3aed" },
+  ];
+
   return (
     <div className="dashboard-card client-financial-card">
       <div className="card-header">
@@ -40,7 +52,7 @@ function ClientFinancialOverview() {
           </ResponsiveContainer>
 
           <div className="chart-center-text">
-            <strong>₹10 Cr</strong>
+            <strong>{totalBudgetLabel}</strong>
             <span>Total Value</span>
           </div>
         </div>
@@ -56,19 +68,20 @@ function ClientFinancialOverview() {
                 {item.name}
               </span>
               <strong>{item.amount}</strong>
-              <span className="percentage">({item.value}%)</span>
+              <span className="percentage">
+                ({totalBudget > 0 ? Math.round(((item.value || 0) / totalBudget) * 100) : 0}%)
+              </span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="client-payment-callout">
-        <span className="callout-label">Next Payment Stage:</span>
-        <strong className="callout-value">₹ 1.2 Cr (On Level 12 Slab Casting)</strong>
+        <span className="callout-label">Budget Utilized:</span>
+        <strong className="callout-value">{utilization}% of contract value deployed</strong>
       </div>
     </div>
   );
 }
 
 export default ClientFinancialOverview;
-

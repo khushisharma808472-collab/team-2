@@ -74,11 +74,11 @@ function SiteEngineerInspections() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="INSPECTIONS LOGGED" value={String(inspections.length || 4)} change="Today" type="projects" />
-        <StatCard title="PASS RATE" value="96.8%" change="High quality" type="active" />
-        <StatCard title="CRITICAL SNAGS" value="0" change="All cleared" type="users" />
-        <StatCard title="PENDING TESTS" value="2 Scheduled" change="Curing batch" type="pending" />
-        <StatCard title="SAFETY COMPLIANCE" value="100%" change="PPE enforced" type="alerts" />
+        <StatCard title="INSPECTIONS LOGGED" value={String(inspections.length)} change="No data" type="projects" />
+        <StatCard title="PASS RATE" value="0%" change="No data" type="active" />
+        <StatCard title="CRITICAL SNAGS" value="0" change="No data" type="users" />
+        <StatCard title="PENDING TESTS" value="0 Scheduled" change="No data" type="pending" />
+        <StatCard title="SAFETY COMPLIANCE" value="0%" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-card" style={{ maxWidth: "800px" }}>
@@ -94,7 +94,10 @@ function SiteEngineerInspections() {
           <div style={{ padding: "30px", textAlign: "center" }}>Loading inspections...</div>
         ) : (
           <div className="site-logs-list">
-            {inspections.map((log) => (
+            {inspections.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No inspections available.</div>
+            ) : (
+            inspections.map((log) => (
               <div className="site-log-item" key={log._id}>
                 <div className="log-icon-wrap inspection">
                   <CheckCircle2 size={16} />
@@ -109,7 +112,8 @@ function SiteEngineerInspections() {
                   <small>{log.date}</small>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         )}
       </div>

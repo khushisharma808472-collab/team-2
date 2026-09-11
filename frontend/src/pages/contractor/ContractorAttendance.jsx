@@ -12,11 +12,19 @@ function ContractorAttendance() {
   const [formData, setFormData] = useState({
     userName: "",
     trade: "Masons & Structural",
-    site: "Tower A - Level 12",
+    site: "",
     status: "Present",
   });
 
   const isAuthorized = canEdit("attendance");
+
+  const presentCount = attendance.filter((a) => a.status === "Present").length;
+  const attendanceRate =
+    attendance.length > 0
+      ? Math.round((presentCount / attendance.length) * 100)
+      : 0;
+  const masonsCount = attendance.filter((a) => a.trade === "Masons & Structural").length;
+  const electriciansCount = attendance.filter((a) => a.trade === "Electricians & MEP").length;
 
   const fetchAttendance = async () => {
     try {
@@ -74,11 +82,11 @@ function ContractorAttendance() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL CREW TODAY" value="168" change="On site" type="users" />
-        <StatCard title="ATTENDANCE RATE" value="96.4%" change="+2.1%" type="active" />
-        <StatCard title="MASONS & STRUCTURAL" value="48 Active" change="Level 12" type="projects" />
-        <StatCard title="ELECTRICIANS" value="26 Active" change="Floors 5-8" type="pending" />
-        <StatCard title="SAFETY CLEARED" value="100%" change="PPE checked" type="alerts" />
+        <StatCard title="TOTAL CREW TODAY" value={String(presentCount)} change="Present" type="users" />
+        <StatCard title="ATTENDANCE RATE" value={`${attendanceRate}%`} change="Live" type="active" />
+        <StatCard title="MASONS & STRUCTURAL" value={`${masonsCount} Active`} change="Live" type="projects" />
+        <StatCard title="ELECTRICIANS" value={`${electriciansCount} Active`} change="Live" type="pending" />
+        <StatCard title="SAFETY CLEARED" value="0%" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid role-grid">
@@ -97,28 +105,32 @@ function ContractorAttendance() {
             <div style={{ padding: "30px", textAlign: "center" }}>Loading attendance...</div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {attendance.map((att) => (
-                <div
-                  key={att._id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "10px",
-                    background: "#f8fafc",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <div>
-                    <strong style={{ fontSize: "12px", color: "#1e293b", display: "block" }}>{att.userName}</strong>
-                    <span style={{ fontSize: "10px", color: "#64748b" }}>{att.trade} • {att.site}</span>
+              {attendance.length === 0 ? (
+                <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No attendance records available.</div>
+              ) : (
+                attendance.map((att) => (
+                  <div
+                    key={att._id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "10px",
+                      background: "#f8fafc",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div>
+                      <strong style={{ fontSize: "12px", color: "#1e293b", display: "block" }}>{att.userName}</strong>
+                      <span style={{ fontSize: "10px", color: "#64748b" }}>{att.trade} • {att.site}</span>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span className="status-pill good">{att.status}</span>
+                      <small style={{ display: "block", fontSize: "9px", color: "#94a3b8" }}>{att.checkIn}</small>
+                    </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <span className="status-pill good">{att.status}</span>
-                    <small style={{ display: "block", fontSize: "9px", color: "#94a3b8" }}>{att.checkIn}</small>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </div>

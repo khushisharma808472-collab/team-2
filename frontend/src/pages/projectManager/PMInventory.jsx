@@ -51,7 +51,14 @@ function PMInventory() {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                      No inventory items available.
+                    </td>
+                  </tr>
+                ) : (
+                items.map((item) => (
                   <tr key={item._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 10px", fontWeight: 600, color: "#1e293b" }}>{item.name}</td>
                     <td style={{ padding: "12px 10px", color: "#64748b" }}>{item.category}</td>
@@ -69,7 +76,8 @@ function PMInventory() {
                       </span>
                     </td>
                   </tr>
-                ))}
+                ))
+                )}
               </tbody>
             </table>
           </div>

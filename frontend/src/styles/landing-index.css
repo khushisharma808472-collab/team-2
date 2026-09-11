@@ -16,12 +16,17 @@ html {
   scroll-behavior: smooth;
   background: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 a {
@@ -31,6 +36,12 @@ a {
 
 button {
   font-family: inherit;
+}
+
+img,
+picture,
+svg {
+  max-width: 100%;
 }
 
 .app {
@@ -46,6 +57,7 @@ button {
 .footer-container,
 .footer-bottom {
   width: min(1120px, 90%);
+  max-width: 100%;
   margin: auto;
 }
 
@@ -84,11 +96,39 @@ button {
   width: 27px;
   height: 27px;
   border-radius: 5px;
-  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-muted);
+}
+
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  line-height: 1;
+  white-space: nowrap;
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.navbar .logo .logo-track {
+  position: relative;
+  color: var(--accent);
+}
+
+.navbar .logo .logo-track::after {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 40%;
+  bottom: -5px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--accent);
 }
 
 .nav-links {
@@ -713,11 +753,13 @@ footer {
 
 /* RESPONSIVE */
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
   .nav-links {
     display: none;
   }
+}
 
+@media (max-width: 900px) {
   .modules-grid,
   .roles-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -747,6 +789,76 @@ footer {
 @media (max-width: 600px) {
   .navbar {
     height: 65px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 14px;
+  }
+
+  .nav-container {
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .nav-actions {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    height: 34px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.25px;
+    line-height: 1;
+    gap: 8px;
+    min-width: 0;
+    color: var(--text);
+  }
+
+  .logo span span {
+    color: var(--accent);
+  }
+
+  .logo-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .navbar .logo {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    margin: 0;
+    width: auto;
+    min-width: 0;
+    max-width: 120px;
+    height: auto;
+    flex-shrink: 1;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .navbar .logo .logo-track::after {
+    height: 3px;
+    bottom: -5px;
+  }
+
+  .nav-actions .btn-primary {
+    padding: 9px 14px;
+    font-size: 10px;
+    white-space: nowrap;
   }
 
   .nav-actions .btn-outline {

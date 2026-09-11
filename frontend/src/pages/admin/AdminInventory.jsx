@@ -11,11 +11,11 @@ function AdminInventory() {
   const [formData, setFormData] = useState({
     name: "",
     category: "Cement & Aggregates",
-    quantity: 100,
+    quantity: 0,
     unit: "Bags",
-    minQuantity: 50,
+    minQuantity: 0,
     location: "Warehouse 1",
-    unitPrice: "₹ 380",
+    unitPrice: "",
   });
 
   const isAuthorized = canEdit("inventory");
@@ -86,16 +86,16 @@ function AdminInventory() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TOTAL STOCK ITEMS" value={String(items.length || 5)} change="Tracked" type="projects" />
+        <StatCard title="TOTAL STOCK ITEMS" value={String(items.length)} change="Tracked" type="projects" />
         <StatCard
           title="LOW STOCK ALERTS"
-          value={String(items.filter((i) => i.status === "Low Stock" || i.status === "Out of Stock").length || 2)}
+          value={String(items.filter((i) => i.status === "Low Stock" || i.status === "Out of Stock").length)}
           change="Action required"
           type="alerts"
         />
-        <StatCard title="STOCK VALUATION" value="₹ 1.84 Cr" change="+5.4%" type="users" />
-        <StatCard title="STOCK HEALTH" value="92.6%" change="Optimal" type="active" />
-        <StatCard title="ACTIVE WAREHOUSES" value="3 Locations" change="North & East" type="pending" />
+        <StatCard title="STOCK VALUATION" value="₹ 0" change="Not tracked" type="users" />
+        <StatCard title="STOCK HEALTH" value="0%" change="No data" type="active" />
+        <StatCard title="ACTIVE WAREHOUSES" value="0" change="No data" type="pending" />
       </div>
 
       <div className="dashboard-card">
@@ -124,7 +124,14 @@ function AdminInventory() {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                      No inventory items available.
+                    </td>
+                  </tr>
+                ) : (
+                  items.map((item) => (
                   <tr key={item._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 10px", fontWeight: 600, color: "#1e293b" }}>{item.name}</td>
                     <td style={{ padding: "12px 10px", color: "#64748b" }}>{item.category}</td>
@@ -154,7 +161,8 @@ function AdminInventory() {
                       </td>
                     )}
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

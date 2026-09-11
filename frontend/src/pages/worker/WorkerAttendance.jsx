@@ -1,18 +1,42 @@
 import { useState, useEffect } from "react";
-import { Clock, LogIn, LogOut, CheckCircle2, UserCheck, Calendar } from "lucide-react";
+import { Clock, LogIn, LogOut, UserCheck, Calendar } from "lucide-react";
 import API from "../../services/api";
 import StatCard from "../../components/dashboard/StatCard";
 
 function WorkerAttendance() {
-  const [punchedIn, setPunchedIn] = useState(true);
-  const [punchTime, setPunchTime] = useState("07:52 AM");
-  const [history, setHistory] = useState([
-    { date: "Today, 26 Aug", in: "07:52 AM", out: "--", hours: "Ongoing", status: "Active" },
-    { date: "Yesterday, 25 Aug", in: "07:58 AM", out: "05:02 PM", hours: "9.0 hrs", status: "Present" },
-    { date: "24 Aug 2026", in: "07:50 AM", out: "05:30 PM", hours: "9.5 hrs", status: "Present (OT)" },
-    { date: "23 Aug 2026", in: "08:00 AM", out: "05:00 PM", hours: "9.0 hrs", status: "Present" },
-    { date: "22 Aug 2026", in: "07:55 AM", out: "05:10 PM", hours: "9.2 hrs", status: "Present" },
-  ]);
+  const [punchedIn, setPunchedIn] = useState(false);
+  const [punchTime, setPunchTime] = useState("--");
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        setLoading(true);
+        const res = await API.get("/attendance");
+        const records = res.data?.data || [];
+        setHistory(
+          records.map((r) => ({
+            date: r.date || "--",
+            in: r.checkIn || "--",
+            out: r.checkOut || "--",
+            hours: r.checkOut && r.checkOut !== "--" ? "Completed" : "Ongoing",
+            status: r.checkOut && r.checkOut !== "--" ? "Present" : "Active",
+          }))
+        );
+        const today = records.find((r) => r.date === "Today");
+        if (today) {
+          setPunchTime(today.checkIn || "--");
+          setPunchedIn(Boolean(today.checkIn && today.checkIn !== "--" && today.checkOut === "--"));
+        }
+      } catch {
+        setHistory([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAttendance();
+  }, []);
 
   const togglePunch = async () => {
     try {
@@ -23,21 +47,21 @@ function WorkerAttendance() {
       if (punchedIn) {
         setPunchedIn(false);
         setHistory((prev) => [
-          { date: "Today, 26 Aug", in: punchTime, out: now, hours: "Completed", status: "Punched Out" },
-          ...prev.slice(1),
+          ...prev.map((h, idx) =>
+            idx === 0 ? { ...h, out: now, hours: "Completed", status: "Present" } : h
+          ),
         ]);
         alert(`Punched OUT successfully at ${now}`);
       } else {
         setPunchedIn(true);
         setPunchTime(now);
         setHistory((prev) => [
-          { date: "Today, 26 Aug", in: now, out: "--", hours: "Ongoing", status: "Active" },
-          ...prev.slice(1),
+          { date: "Today", in: now, out: "--", hours: "Ongoing", status: "Active" },
+          ...prev,
         ]);
         alert(`Punched IN successfully at ${now}`);
       }
     } catch {
-      // Fallback local toggle
       const now = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
       if (punchedIn) {
         setPunchedIn(false);
@@ -57,7 +81,7 @@ function WorkerAttendance() {
           <h1>Biometric Clock-In & Shift Punch ⏱️</h1>
           <p>Record your shift arrival, lunch breaks, punch-out times, and view weekly verified duty hours.</p>
         </div>
-        <button className="date-button">📅 Worksite: Metro Tower A</button>
+        <button className="date-button">📅 Assigned Worksite</button>
       </div>
 
       <div className="stats-grid">
@@ -67,10 +91,10 @@ function WorkerAttendance() {
           change={punchedIn ? punchTime : "Offline"}
           type={punchedIn ? "active" : "alerts"}
         />
-        <StatCard title="HOURS THIS WEEK" value="36.5h" change="+2h Overtime" type="users" />
-        <StatCard title="MONTHLY ATTENDANCE" value="22 / 24 Days" change="91.6% rate" type="pending" />
-        <StatCard title="PUNCTUALITY SCORE" value="98%" change="On time" type="projects" />
-        <StatCard title="SAFETY CLEARED" value="100%" change="Daily PPE pass" type="active" />
+        <StatCard title="HOURS THIS WEEK" value="0 Hours" change="No data" type="users" />
+        <StatCard title="MONTHLY ATTENDANCE" value="0 / 0 Days" change="No data" type="pending" />
+        <StatCard title="PUNCTUALITY SCORE" value="0%" change="No data" type="projects" />
+        <StatCard title="SAFETY CLEARED" value="0%" change="No data" type="active" />
       </div>
 
       <div className="dashboard-grid role-grid" style={{ marginBottom: "20px" }}>
@@ -96,7 +120,7 @@ function WorkerAttendance() {
               {punchedIn ? "Currently on Duty" : "Currently Off Duty"}
             </h2>
             <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#64748b" }}>
-              {punchedIn ? `Punched in at ${punchTime} (East Wing Core)` : "Ready to clock in for shift"}
+              {punchedIn ? `Punched in at ${punchTime}` : "Ready to clock in for shift"}
             </p>
           </div>
 
@@ -139,7 +163,14 @@ function WorkerAttendance() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {history.map((h, idx) => (
+            {loading ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>Loading...</div>
+            ) : history.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                No attendance records available.
+              </div>
+            ) : (
+              history.map((h, idx) => (
               <div
                 key={idx}
                 style={{
@@ -162,7 +193,8 @@ function WorkerAttendance() {
                   <small style={{ display: "block", fontSize: "9px", color: "#94a3b8" }}>{h.hours}</small>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

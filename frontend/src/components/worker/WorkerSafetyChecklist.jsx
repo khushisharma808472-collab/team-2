@@ -1,15 +1,8 @@
 import { ShieldCheck, Check } from "lucide-react";
 
-const ppeItems = [
-  { item: "Hard Hat / Safety Helmet", status: "Equipped & Inspected", required: true },
-  { item: "Steel-Toe Safety Boots", status: "Equipped & Inspected", required: true },
-  { item: "High-Visibility Safety Vest", status: "Equipped & Inspected", required: true },
-  { item: "Fall Arrest Safety Harness", status: "Certified for Level 8", required: true },
-  { item: "Reinforced Work Gloves", status: "In Use", required: true },
-  { item: "Eye Protection / Safety Goggles", status: "In Use", required: false },
-];
+function WorkerSafetyChecklist({ clearedPercent = 0, items = [], officerName = "" }) {
+  const ppeItems = Array.isArray(items) ? items : [];
 
-function WorkerSafetyChecklist() {
   return (
     <div className="dashboard-card worker-safety-card">
       <div className="card-header">
@@ -18,35 +11,50 @@ function WorkerSafetyChecklist() {
           <h3>Mandatory PPE & Safety Clearance</h3>
         </div>
         <span className="safety-cleared-pill">
-          100% Cleared
+          {clearedPercent}% Cleared
         </span>
       </div>
 
       <div className="ppe-list">
-        {ppeItems.map((ppe, idx) => (
-          <div className="ppe-item" key={idx}>
-            <div className="ppe-check-circle">
-              <Check size={13} strokeWidth={3} />
-            </div>
+        {ppeItems.length === 0 ? (
+          <p
+            style={{
+              textAlign: "center",
+              color: "#64748b",
+              padding: "16px 0",
+            }}
+          >
+            No safety checklist data available.
+          </p>
+        ) : (
+          ppeItems.map((ppe, idx) => (
+            <div className="ppe-item" key={ppe._id || idx}>
+              <div className="ppe-check-circle">
+                <Check size={13} strokeWidth={3} />
+              </div>
 
-            <div className="ppe-info">
-              <strong>{ppe.item}</strong>
-              <span>{ppe.status}</span>
-            </div>
+              <div className="ppe-info">
+                <strong>{ppe.item || ppe.name}</strong>
+                <span>{ppe.status}</span>
+              </div>
 
-            {ppe.required && (
-              <span className="ppe-mandatory-badge">Mandatory</span>
-            )}
-          </div>
-        ))}
+              {ppe.required && (
+                <span className="ppe-mandatory-badge">Mandatory</span>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
-      <div className="safety-emergency-box">
-        <span>Site Safety Officer: <strong>Suresh Patil (Ext. 108)</strong></span>
-      </div>
+      {officerName ? (
+        <div className="safety-emergency-box">
+          <span>
+            Site Safety Officer: <strong>{officerName}</strong>
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 export default WorkerSafetyChecklist;
-

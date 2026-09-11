@@ -19,8 +19,8 @@ function AdminProjects() {
     budget: "",
     status: "On Track",
     progress: 0,
-    startDate: "01 Jan 2026",
-    endDate: "31 Dec 2026",
+    startDate: "",
+    endDate: "",
   });
 
   const isAuthorized = canEdit("projects");
@@ -48,12 +48,12 @@ function AdminProjects() {
     setFormData({
       name: "",
       code: "PRJ-" + Math.floor(1000 + Math.random() * 9000),
-      client: "Skyline Realty Ltd",
-      budget: "₹ 15.0 Cr",
+      client: "",
+      budget: "",
       status: "On Track",
-      progress: 10,
-      startDate: "01 Jan 2026",
-      endDate: "31 Dec 2026",
+      progress: 0,
+      startDate: "",
+      endDate: "",
     });
     setShowModal(true);
   };

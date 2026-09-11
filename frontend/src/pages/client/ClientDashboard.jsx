@@ -1,12 +1,17 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../../components/dashboard/StatCard";
 import ClientMilestoneTimeline from "../../components/client/ClientMilestoneTimeline";
 import ClientFinancialOverview from "../../components/client/ClientFinancialOverview";
 import ClientSiteUpdates from "../../components/client/ClientSiteUpdates";
 import { Download, Receipt, PhoneCall, Eye } from "lucide-react";
+import api from "../../services/api";
 
 function ClientDashboard() {
   const navigate = useNavigate();
+
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const getUserName = () => {
     try {
@@ -23,6 +28,34 @@ function ClientDashboard() {
   };
   const userName = getUserName();
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get("/dashboard/client");
+
+        if (response.data.success) {
+          setDashboardData(response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch Client dashboard:",
+          error.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const stats = dashboardData?.stats || {};
+  const milestones = dashboardData?.milestones || [];
+  const projectName =
+    dashboardData?.projects?.[0]?.name || "Your Project";
+
   return (
     <>
       {/* WELCOME SECTION */}
@@ -33,7 +66,12 @@ function ClientDashboard() {
         </div>
 
         <button className="date-button">
-          📅 Today, 26 Aug 2026
+          📅 Today,{" "}
+          {new Date().toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
         </button>
       </div>
 
@@ -41,31 +79,31 @@ function ClientDashboard() {
       <div className="stats-grid">
         <StatCard
           title="MY PROJECTS"
-          value="2 Sites"
-          change="Active"
+          value={`${stats.totalProjects ?? 0} Sites`}
+          change={loading ? "Loading" : `${stats.activeProjects ?? 0} active`}
           type="projects"
         />
         <StatCard
           title="OVERALL COMPLETION"
-          value="68.5%"
-          change="5.2%"
+          value={`${stats.overallProgress ?? 0}%`}
+          change={loading ? "Loading" : "Live"}
           type="active"
         />
         <StatCard
           title="TOTAL DISBURSED"
-          value="₹ 6.8 Cr"
-          change="68% paid"
+          value={stats.totalSpentLabel || "₹ 0.0 Cr"}
+          change={`${stats.budgetUtilization ?? 0}% utilized`}
           type="users"
         />
         <StatCard
           title="MILESTONES SIGNED"
-          value="8 / 12"
+          value={`${stats.signedMilestones ?? 0} / ${stats.totalMilestones ?? 0}`}
           change="Quality pass"
           type="pending"
         />
         <StatCard
           title="NEXT HANDOVER"
-          value="Aug 2026"
+          value={stats.nextHandover || "--"}
           change="On track"
           type="alerts"
         />
@@ -74,13 +112,13 @@ function ClientDashboard() {
       {/* MAIN WIDGETS GRID */}
       <div className="dashboard-grid role-grid">
         {/* 1. Milestone Timeline Roadmap */}
-        <ClientMilestoneTimeline />
+        <ClientMilestoneTimeline milestones={milestones} projectName={projectName} />
 
         {/* 2. Financial Overview & Expenditure */}
-        <ClientFinancialOverview />
+        <ClientFinancialOverview data={dashboardData?.financialData} />
 
         {/* 3. Site Updates & Inspection Logs */}
-        <ClientSiteUpdates />
+        <ClientSiteUpdates updates={dashboardData?.siteUpdates || []} />
 
         {/* 4. Client Quick Actions */}
         <div className="dashboard-card quick-actions-card">

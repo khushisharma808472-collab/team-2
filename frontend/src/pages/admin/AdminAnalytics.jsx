@@ -16,11 +16,11 @@ function AdminAnalytics() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="SYSTEM UPTIME" value="99.98%" change="Optimal" type="active" />
-        <StatCard title="AVG SPRINT VELOCITY" value="84.2%" change="+6.1%" type="projects" />
-        <StatCard title="API RESPONSE" value="42 ms" change="Fast" type="users" />
-        <StatCard title="COST VARIANCE" value="-2.4%" change="Under budget" type="pending" />
-        <StatCard title="CRITICAL SNAGS" value="0" change="All cleared" type="alerts" />
+        <StatCard title="SYSTEM UPTIME" value="0%" change="No data" type="active" />
+        <StatCard title="AVG SPRINT VELOCITY" value="0%" change="No data" type="projects" />
+        <StatCard title="API RESPONSE" value="0 ms" change="No data" type="users" />
+        <StatCard title="COST VARIANCE" value="0%" change="No data" type="pending" />
+        <StatCard title="CRITICAL SNAGS" value="0" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid">

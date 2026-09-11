@@ -1,16 +1,13 @@
 import { useState } from "react";
 import WorkerSafetyChecklist from "../../components/worker/WorkerSafetyChecklist";
 import StatCard from "../../components/dashboard/StatCard";
-import { ShieldCheck, AlertOctagon, PhoneCall, Plus } from "lucide-react";
+import { AlertOctagon } from "lucide-react";
 
 function WorkerSafety() {
-  const [hazards, setHazards] = useState([
-    { id: 1, title: "Exposed rebar ends near Staircase 3", zone: "Tower A - Level 8", status: "Resolved", time: "Yesterday" },
-    { id: 2, title: "Slippery wet surface near mortar mixer", zone: "Ground Yard", status: "Resolved", time: "24 Aug" },
-  ]);
+  const [hazards, setHazards] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [hazardText, setHazardText] = useState("");
-  const [hazardZone, setHazardZone] = useState("Floor 8 East Wing");
+  const [hazardZone, setHazardZone] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,8 +16,9 @@ function WorkerSafety() {
       ...hazards,
     ]);
     setHazardText("");
+    setHazardZone("");
     setShowModal(false);
-    alert("Hazard reported to Site Safety Officer Suresh Patil.");
+    alert("Hazard reported.");
   };
 
   return (
@@ -40,11 +38,11 @@ function WorkerSafety() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="PPE CLEARANCE" value="100% Cleared" change="Verified today" type="active" />
-        <StatCard title="DAYS INCIDENT FREE" value="142 Days" change="Zero injury" type="projects" />
-        <StatCard title="SAFETY OFFICER" value="Suresh Patil" change="Ext. 108" type="users" />
-        <StatCard title="MANDATORY PPE" value="5 Items" change="Enforced" type="pending" />
-        <StatCard title="SITE AID STATION" value="Ground Bay" change="Open 24/7" type="alerts" />
+        <StatCard title="PPE CLEARANCE" value="0% Cleared" change="No data" type="active" />
+        <StatCard title="DAYS INCIDENT FREE" value="0 Days" change="No data" type="projects" />
+        <StatCard title="SAFETY OFFICER" value="Not assigned" change="No data" type="users" />
+        <StatCard title="MANDATORY PPE" value="0 Items" change="No data" type="pending" />
+        <StatCard title="SITE AID STATION" value="Not set" change="No data" type="alerts" />
       </div>
 
       <div className="dashboard-grid role-grid" style={{ marginBottom: "20px" }}>
@@ -60,7 +58,12 @@ function WorkerSafety() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {hazards.map((h) => (
+            {hazards.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                No safety data available.
+              </div>
+            ) : (
+              hazards.map((h) => (
               <div
                 key={h.id}
                 style={{
@@ -79,7 +82,8 @@ function WorkerSafety() {
                 </div>
                 <span className={`status-pill ${h.status === "Resolved" ? "good" : "warning"}`}>{h.status}</span>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

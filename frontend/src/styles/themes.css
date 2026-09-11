@@ -612,9 +612,7 @@
   color: var(--theme-accent) !important;
 }
 
-[data-theme]:not([data-theme="light"]) .logo {
-  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-soft)) !important;
-}
+
 
 /* Transitions across whole app */
 body,
@@ -645,6 +643,14 @@ body,
   right: 20px;
   z-index: 999999;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Hidden on mobile — replaced by the navbar hamburger menu */
+@media (max-width: 767px) {
+  .bt-theme-switcher-root,
+  .bt-theme-trigger {
+    display: none;
+  }
 }
 
 /* Floating Trigger Button */

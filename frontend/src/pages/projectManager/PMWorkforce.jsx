@@ -34,7 +34,12 @@ function PMWorkforce() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {attendance.map((att) => (
+            {attendance.length === 0 ? (
+              <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                No personnel on duty.
+              </div>
+            ) : (
+            attendance.map((att) => (
               <div
                 key={att._id}
                 style={{
@@ -52,7 +57,8 @@ function PMWorkforce() {
                 </div>
                 <span className="status-pill good">{att.status}</span>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </div>

@@ -12,10 +12,10 @@ function PMProjects() {
   const [formData, setFormData] = useState({
     name: "",
     client: "",
-    budget: "₹ 15.0 Cr",
+    budget: "",
     status: "On Track",
-    progress: 50,
-    endDate: "30 Dec 2026",
+    progress: 0,
+    endDate: "",
   });
 
   const isAuthorized = canEdit("projects");
@@ -42,11 +42,11 @@ function PMProjects() {
     setEditingProject(null);
     setFormData({
       name: "",
-      client: "Skyline Realty Ltd",
-      budget: "₹ 15.0 Cr",
+      client: "",
+      budget: "",
       status: "On Track",
-      progress: 20,
-      endDate: "30 Dec 2026",
+      progress: 0,
+      endDate: "",
     });
     setShowModal(true);
   };
@@ -129,7 +129,12 @@ function PMProjects() {
         <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>Loading projects...</div>
       ) : (
         <div className="dashboard-grid role-grid">
-          {filtered.map((proj) => (
+          {filtered.length === 0 ? (
+            <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+              No projects available.
+            </div>
+          ) : (
+          filtered.map((proj) => (
             <div className="dashboard-card" key={proj._id} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div>
@@ -179,7 +184,8 @@ function PMProjects() {
                 </div>
               )}
             </div>
-          ))}
+          ))
+          )}
         </div>
       )}
 

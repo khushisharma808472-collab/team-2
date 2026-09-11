@@ -1,41 +1,15 @@
 import { Camera, FileCheck2, ShieldAlert, Award } from "lucide-react";
 
-const updates = [
-  {
-    title: "Level 11 Slab Structural Signoff",
-    desc: "Certified by Lead Site Engineer Rajesh S. Quality pass 100%.",
-    date: "Yesterday, 04:30 PM",
-    icon: Award,
-    type: "verified",
-    badge: "Certified",
-  },
-  {
-    title: "16 New Site Drone Photos Uploaded",
-    desc: "Bird's eye perspective of external masonry & perimeter glazing.",
-    date: "02 Mar 2026",
-    icon: Camera,
-    type: "media",
-    badge: "Photos",
-  },
-  {
-    title: "Electrical Rough-in Quality Audit",
-    desc: "Independent third-party inspection passed without snags.",
-    date: "28 Feb 2026",
-    icon: FileCheck2,
-    type: "verified",
-    badge: "Audit Pass",
-  },
-  {
-    title: "Monsoon Weather Mitigation Logged",
-    desc: "Drainage sump pumps placed. Zero impact on structural timeline.",
-    date: "25 Feb 2026",
-    icon: ShieldAlert,
-    type: "info",
-    badge: "Advisory",
-  },
-];
+const getIconForType = (type) => {
+  if (type === "verified") return Award;
+  if (type === "media") return Camera;
+  if (type === "info") return ShieldAlert;
+  return FileCheck2;
+};
 
-function ClientSiteUpdates() {
+function ClientSiteUpdates({ updates = [] }) {
+  const items = Array.isArray(updates) ? updates.slice(0, 6) : [];
+
   return (
     <div className="dashboard-card client-updates-card">
       <div className="card-header">
@@ -47,29 +21,34 @@ function ClientSiteUpdates() {
       </div>
 
       <div className="client-updates-list">
-        {updates.map((item, idx) => {
-          const Icon = item.icon;
-          return (
-            <div className="client-update-item" key={idx}>
-              <div className={`update-icon-box ${item.type}`}>
-                <Icon size={16} />
-              </div>
-
-              <div className="update-content">
-                <div className="update-top">
-                  <strong>{item.title}</strong>
-                  <span className={`update-badge ${item.type}`}>{item.badge}</span>
+        {items.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#64748b", padding: "16px 0" }}>
+            No site updates available yet.
+          </p>
+        ) : (
+          items.map((item, idx) => {
+            const Icon = getIconForType(item.type);
+            return (
+              <div className="client-update-item" key={item._id || idx}>
+                <div className={`update-icon-box ${item.type}`}>
+                  <Icon size={16} />
                 </div>
-                <p>{item.desc}</p>
-                <small>{item.date}</small>
+
+                <div className="update-content">
+                  <div className="update-top">
+                    <strong>{item.title}</strong>
+                    <span className={`update-badge ${item.type}`}>{item.badge}</span>
+                  </div>
+                  <p>{item.desc}</p>
+                  <small>{item.date}</small>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );
 }
 
 export default ClientSiteUpdates;
-

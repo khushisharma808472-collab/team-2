@@ -1,17 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertTriangle, Plus, CheckCircle2, Clock } from "lucide-react";
+import API from "../../services/api";
 import StatCard from "../../components/dashboard/StatCard";
 import { canEdit } from "../../utils/auth";
 
-const initialDelays = [
-  { id: 1, name: "Basement Slab Pouring", due: "05 Mar 2026", status: "Completed", delay: "0 days", badgeType: "good" },
-  { id: 2, name: "Floor 4 Column Casting", due: "12 Mar 2026", status: "Delayed", delay: "+3 days (Weather)", badgeType: "warning" },
-  { id: 3, name: "HVAC Conduit Routing", due: "20 Mar 2026", status: "At Risk", delay: "+5 days (Material wait)", badgeType: "danger" },
-  { id: 4, name: "Structural Fire Safety Check", due: "27 Mar 2026", status: "On Schedule", delay: "0 days", badgeType: "good" },
-];
-
 function SiteEngineerDelays() {
-  const [delays, setDelays] = useState(initialDelays);
+  const [delays, setDelays] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -22,20 +17,38 @@ function SiteEngineerDelays() {
 
   const isAuthorized = canEdit("delays");
 
-  const handleAdd = (e) => {
+  const fetchDelays = async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/delays");
+      if (res.data?.data) {
+        setDelays(res.data.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDelays();
+  }, []);
+
+  const handleAdd = async (e) => {
     e.preventDefault();
-    setDelays([
-      ...delays,
-      {
-        id: Date.now(),
+    try {
+      await API.post("/delays", {
         name: formData.name,
         due: formData.due,
         delay: formData.delay,
         status: formData.status,
-        badgeType: formData.status === "Delayed" ? "warning" : "danger",
-      },
-    ]);
-    setShowModal(false);
+      });
+      setShowModal(false);
+      fetchDelays();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to log delay");
+    }
   };
 
   return (
@@ -65,11 +78,11 @@ function SiteEngineerDelays() {
       </div>
 
       <div className="stats-grid">
-        <StatCard title="TRACKED BOTTLENECKS" value={String(delays.length)} change="Active" type="projects" />
-        <StatCard title="ACTIVE DELAYS" value="2 Critical" change="Action required" type="alerts" />
-        <StatCard title="AVG DELAY RECOVERY" value="3.2 Days" change="Mitigated" type="active" />
-        <StatCard title="WEATHER STOPPAGES" value="1 Incident" change="Monsoon" type="pending" />
-        <StatCard title="SUPPLY DISRUPTIONS" value="1 Item" change="Pipe transit" type="users" />
+        <StatCard title="TRACKED BOTTLENECKS" value={String(delays.length)} change="No data" type="projects" />
+        <StatCard title="ACTIVE DELAYS" value="0 Critical" change="No data" type="alerts" />
+        <StatCard title="AVG DELAY RECOVERY" value="0 Days" change="No data" type="active" />
+        <StatCard title="WEATHER STOPPAGES" value="0 Incidents" change="No data" type="pending" />
+        <StatCard title="SUPPLY DISRUPTIONS" value="0 Items" change="No data" type="users" />
       </div>
 
       <div className="dashboard-card site-delay-card" style={{ maxWidth: "800px" }}>
@@ -82,11 +95,17 @@ function SiteEngineerDelays() {
         </div>
 
         <div className="delay-list">
-          {delays.map((item) => {
-            const Icon = item.badgeType === "good" ? CheckCircle2 : item.badgeType === "warning" ? AlertTriangle : Clock;
+          {loading ? (
+            <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>Loading delays...</div>
+          ) : delays.length === 0 ? (
+            <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>No delays available.</div>
+          ) : (
+          delays.map((item) => {
+            const badgeType = item.badgeType || (item.status === "Delayed" ? "warning" : item.status === "At Risk" ? "danger" : "good");
+            const Icon = badgeType === "good" ? CheckCircle2 : badgeType === "warning" ? AlertTriangle : Clock;
             return (
-              <div className="delay-item" key={item.id}>
-                <div className={`delay-icon-box ${item.badgeType}`}>
+              <div className="delay-item" key={item._id || item.id}>
+                <div className={`delay-icon-box ${badgeType}`}>
                   <Icon size={16} />
                 </div>
 
@@ -96,12 +115,13 @@ function SiteEngineerDelays() {
                 </div>
 
                 <div className="delay-status-col">
-                  <span className={`status-pill ${item.badgeType}`}>{item.status}</span>
+                  <span className={`status-pill ${badgeType}`}>{item.status}</span>
                   <small>{item.delay}</small>
                 </div>
               </div>
             );
-          })}
+          })
+          )}
         </div>
       </div>
 

@@ -11,7 +11,6 @@ import {
   CircleDollarSign,
   Cloud,
   HardHat,
-  ArrowRight,
   Check,
   Menu,
   X,
@@ -23,8 +22,6 @@ import {
   DraftingCompass,
   ShieldCheck,
   Ruler,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CraneSVG, IsoBuilding, BlueprintSVG } from "../components/landing/Deco";
@@ -96,7 +93,7 @@ function LandingPage() {
   const [loaderGone, setLoaderGone] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [heroImgLoaded, setHeroImgLoaded] = useState(false);
-  const [theme, setTheme] = useState(() => {
+  const [theme] = useState(() => {
     const saved = localStorage.getItem("bt-theme");
     if (saved === "light" || saved === "dark") return saved;
     return window.matchMedia &&
@@ -107,7 +104,6 @@ function LandingPage() {
   const appRef = useRef(null);
   const progressRef = useRef(null);
   const navbarRef = useRef(null);
-  const themeToggleRef = useRef(null);
 
   useEffect(() => {
     const t1 = setTimeout(() => {
@@ -219,28 +215,18 @@ function LandingPage() {
     };
   }, []);
 
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    const button = themeToggleRef.current;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (button && !reduced) {
-      const rect = button.getBoundingClientRect();
-      const overlay = document.createElement("div");
-      overlay.className = "theme-reveal";
-      overlay.style.background = getComputedStyle(document.documentElement)
-        .getPropertyValue("--bg")
-        .trim();
-      overlay.style.left = `${rect.left + rect.width / 2}px`;
-      overlay.style.top = `${rect.top + rect.height / 2}px`;
-      document.body.appendChild(overlay);
-      void overlay.offsetWidth;
-      overlay.classList.add("theme-reveal-active");
-      setTimeout(() => overlay.remove(), 820);
-    }
-
-    setTheme(next);
+  const closeMenu = () => {
+    setMenuOpen(false);
   };
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -491,12 +477,8 @@ function LandingPage() {
       <nav className="navbar" ref={navbarRef}>
         <div className="nav-container">
           <a href="#home" className="logo">
-            <div className="logo-icon">
-              <Wifi size={16} />
-            </div>
-
-            <span>
-              Build<span>Track</span>
+            <span className="logo-word">
+              Build<span className="logo-track">Track</span>
             </span>
           </a>
 
@@ -510,29 +492,6 @@ function LandingPage() {
 
           <div className="nav-actions">
             <button
-              ref={themeToggleRef}
-              className={`theme-toggle theme-${theme}`}
-              onClick={toggleTheme}
-              aria-label={
-                theme === "dark"
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
-              }
-              aria-pressed={theme === "light"}
-              title={
-                theme === "dark"
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
-              }
-            >
-              <span className="theme-toggle-thumb"></span>
-              <Moon className="theme-toggle-icon theme-toggle-moon" size={13} />
-              <Sun className="theme-toggle-icon theme-toggle-sun" size={13} />
-            </button>
-
-           
-
-            <button
   className="btn btn-primary"
   onClick={() => (window.location.href = "/register")}
 >
@@ -541,7 +500,7 @@ function LandingPage() {
 
             <button
               className="menu-toggle"
-              onClick={() => setMenuOpen((open) => !open)}
+              onClick={() => (menuOpen ? closeMenu() : setMenuOpen(true))}
               aria-label="Toggle navigation menu"
               aria-expanded={menuOpen}
             >
@@ -549,27 +508,45 @@ function LandingPage() {
             </button>
           </div>
         </div>
-
-        {menuOpen && (
-          <div className="mobile-menu">
-            <a href="#modules" onClick={() => setMenuOpen(false)}>
-              Modules
-            </a>
-            <a href="#roles" onClick={() => setMenuOpen(false)}>
-              User Roles
-            </a>
-            <a href="#dashboards" onClick={() => setMenuOpen(false)}>
-              Dashboard
-            </a>
-            <a href="#workflow" onClick={() => setMenuOpen(false)}>
-              How It Works
-            </a>
-            <a href="#tech" onClick={() => setMenuOpen(false)}>
-              Tech Stack
-            </a>
-          </div>
-        )}
       </nav>
+
+      <div
+        className={`mobile-menu-overlay${menuOpen ? " open" : ""}`}
+        onClick={closeMenu}
+        aria-hidden="true"
+      ></div>
+
+      <div className={`mobile-menu${menuOpen ? " open" : ""}`}>
+        <div className="mobile-menu-header">
+          <span className="mobile-menu-title">MENU</span>
+
+          <button
+            className="mobile-menu-close"
+            onClick={closeMenu}
+            aria-label="Close navigation menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mobile-menu-links">
+          <a href="#modules" onClick={closeMenu}>
+            Modules
+          </a>
+          <a href="#roles" onClick={closeMenu}>
+            User Roles
+          </a>
+          <a href="#dashboards" onClick={closeMenu}>
+            Dashboard
+          </a>
+          <a href="#workflow" onClick={closeMenu}>
+            How It Works
+          </a>
+          <a href="#tech" onClick={closeMenu}>
+            Tech Stack
+          </a>
+        </div>
+      </div>
 
       {/* HERO */}
 
@@ -777,59 +754,26 @@ function LandingPage() {
               <div className="dashboard-header">
                 <div>
                   <h3>Project Manager Dashboard</h3>
-                  <span>Concrete Frame & Foundation Stage</span>
+                  <span>Live project telemetry</span>
                 </div>
 
-                <span className="status">ON SCHEDULE</span>
+                <span className="status">LIVE</span>
               </div>
 
               <div className="metric-grid">
                 <div className="metric-box">
                   <span>Overall Progress</span>
-                  <strong className="orange">
-                    <CountUp end={68} suffix="%" />
-                  </strong>
+                  <strong className="orange">Live</strong>
                 </div>
 
                 <div className="metric-box">
                   <span>Budget Utilization</span>
-                  <strong className="green">
-                    <CountUp end={42.8} decimals={1} suffix="%" />
-                  </strong>
+                  <strong className="green">Live</strong>
                 </div>
 
                 <div className="metric-box">
                   <span>Active Crew</span>
-                  <strong>
-                    <CountUp end={84} suffix="/90" />
-                  </strong>
-                </div>
-              </div>
-
-              <div className="fake-dashboard">
-                <div className="progress-circle" style={{ "--ring": "78%" }}>
-                  <div>
-                    <span>OVERALL PROGRESS</span>
-                    <strong>
-                      <CountUp end={78} suffix="%" />
-                    </strong>
-                  </div>
-                </div>
-
-                <div className="chart-area">
-                  <div className="chart-title">BUDGET UTILIZATION</div>
-
-                  <div className="bar">
-                    <div className="bar-fill fill-1" data-value="80%"></div>
-                  </div>
-
-                  <div className="bar">
-                    <div className="bar-fill fill-2" data-value="55%"></div>
-                  </div>
-
-                  <div className="bar">
-                    <div className="bar-fill fill-3" data-value="70%"></div>
-                  </div>
+                  <strong>Live</strong>
                 </div>
               </div>
             </div>
@@ -841,33 +785,25 @@ function LandingPage() {
               <div className="admin-list">
                 <div>
                   <span>Global Users</span>
-                  <strong>
-                    <CountUp end={1240} /> Active Accounts
-                  </strong>
+                  <strong>Live count</strong>
                   <Check size={16} />
                 </div>
 
                 <div>
                   <span>Active Projects</span>
-                  <strong>
-                    <CountUp end={24} /> Under Construction
-                  </strong>
+                  <strong>Live count</strong>
                   <Check size={16} />
                 </div>
 
                 <div>
                   <span>Daily Activity Stream</span>
-                  <strong>
-                    <CountUp end={4821} /> Database Writes
-                  </strong>
+                  <strong>Live feed</strong>
                   <Check size={16} />
                 </div>
 
                 <div>
                   <span>Active API Webhooks</span>
-                  <strong>
-                    <CountUp end={99.9} decimals={1} suffix="%" /> Operational
-                  </strong>
+                  <strong>Live status</strong>
                   <Check size={16} />
                 </div>
               </div>

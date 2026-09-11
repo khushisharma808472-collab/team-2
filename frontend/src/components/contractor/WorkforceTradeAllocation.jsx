@@ -1,17 +1,29 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Users } from "lucide-react";
 
-const workforceData = [
-  { name: "Supervisors & Engineers", value: 14, color: "#3b82f6" },
-  { name: "Masons & Structural", value: 48, color: "#f59e0b" },
-  { name: "Electricians & MEP", value: 26, color: "#10b981" },
-  { name: "Carpenters & Riggers", value: 22, color: "#8b5cf6" },
-  { name: "General Site Labor", value: 58, color: "#64748b" },
+const defaultColors = ["#3b82f6", "#f59e0b", "#10b981", "#8b5cf6", "#64748b"];
+const defaultLabels = [
+  "Supervisors & Engineers",
+  "Masons & Structural",
+  "Electricians & MEP",
+  "Carpenters & Riggers",
+  "General Site Labor",
 ];
 
-const totalCrew = workforceData.reduce((acc, curr) => acc + curr.value, 0);
+function WorkforceTradeAllocation({ data = [] }) {
+  let workforceData = Array.isArray(data) ? data : [];
 
-function WorkforceTradeAllocation() {
+  // If no data passed, build zeroed default categories so the UI never crashes
+  if (workforceData.length === 0) {
+    workforceData = defaultLabels.map((name, idx) => ({
+      name,
+      value: 0,
+      color: defaultColors[idx],
+    }));
+  }
+
+  const totalCrew = workforceData.reduce((acc, curr) => acc + (curr.value || 0), 0);
+
   return (
     <div className="dashboard-card workforce-trade-card">
       <div className="card-header">
@@ -63,7 +75,7 @@ function WorkforceTradeAllocation() {
               </span>
               <strong>{item.value}</strong>
               <span className="percentage">
-                ({Math.round((item.value / totalCrew) * 100)}%)
+                ({totalCrew > 0 ? Math.round(((item.value || 0) / totalCrew) * 100) : 0}%)
               </span>
             </div>
           ))}
@@ -74,4 +86,3 @@ function WorkforceTradeAllocation() {
 }
 
 export default WorkforceTradeAllocation;
-

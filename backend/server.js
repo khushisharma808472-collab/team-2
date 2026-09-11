@@ -10,6 +10,7 @@ const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const materialRequestRoutes = require("./routes/materialRequestRoutes");
 const workOrderRoutes = require("./routes/workOrderRoutes");
@@ -49,6 +50,9 @@ app.use("/api/auth", authRoutes);
 
 // Admin Routes
 app.use("/api/admin", adminRoutes);
+
+// Role Dashboards
+app.use("/api/dashboard", dashboardRoutes);
 
 // Feature Modules
 app.use("/api/projects", projectRoutes);
