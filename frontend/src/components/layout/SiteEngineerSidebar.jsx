@@ -119,5 +119,8 @@ function SiteEngineerSidebar() {
   );
 }
 
+/* eslint-disable-next-line react-refresh/only-export-components */
+export { menuItems as siteEngineerMenu };
+
 export default SiteEngineerSidebar;
 

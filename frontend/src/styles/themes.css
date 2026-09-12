@@ -411,6 +411,14 @@
   background: var(--theme-border-light) !important;
 }
 
+[data-theme]:not([data-theme="light"]) .dropdown-user-info strong {
+  color: var(--theme-text-primary) !important;
+}
+
+[data-theme]:not([data-theme="light"]) .dropdown-user-info span {
+  color: var(--theme-text-muted) !important;
+}
+
 /* --- CARDS & PANELS --- */
 [data-theme]:not([data-theme="light"]) .stat-card,
 [data-theme]:not([data-theme="light"]) .pm-stat-card,
@@ -651,6 +659,16 @@ body,
   .bt-theme-trigger {
     display: none;
   }
+}
+
+/* Admin dashboard hosts the switcher inside its header, so hide the
+   global floating pill there (but keep the header instance visible). */
+body.admin-scope .bt-theme-switcher-root {
+  display: none;
+}
+
+body.admin-scope .dashboard-header .bt-theme-switcher-root {
+  display: block;
 }
 
 /* Floating Trigger Button */

@@ -113,5 +113,8 @@ function WorkerSidebar() {
   );
 }
 
+/* eslint-disable-next-line react-refresh/only-export-components */
+export { menuItems as workerMenu };
+
 export default WorkerSidebar;
 

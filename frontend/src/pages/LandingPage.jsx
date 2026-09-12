@@ -11,7 +11,6 @@ import {
   CircleDollarSign,
   Cloud,
   HardHat,
-  Check,
   Menu,
   X,
   Gauge,
@@ -25,6 +24,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CraneSVG, IsoBuilding, BlueprintSVG } from "../components/landing/Deco";
+import CommandCenter from "../components/landing/CommandCenter";
 import "../styles/landing.css";
 import "../styles/landing-index.css";
 import "../styles/landing-theme.css";
@@ -151,6 +151,7 @@ function LandingPage() {
       ".module-card",
       ".role-card",
       ".dashboard-card",
+      ".cmd-panel",
       ".workflow-card",
       ".tech-card",
       ".category-card",
@@ -744,71 +745,12 @@ function LandingPage() {
             <h2>Powerful Dashboards for Every Role</h2>
 
             <p>
-              Real-time operations screens that transform raw data telemetry
-              into immediately actionable insights.
+              Real-time operations management screens that transform raw
+              data telemetry into immediately actionable insights.
             </p>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="dashboard-card">
-              <div className="dashboard-header">
-                <div>
-                  <h3>Project Manager Dashboard</h3>
-                  <span>Live project telemetry</span>
-                </div>
-
-                <span className="status">LIVE</span>
-              </div>
-
-              <div className="metric-grid">
-                <div className="metric-box">
-                  <span>Overall Progress</span>
-                  <strong className="orange">Live</strong>
-                </div>
-
-                <div className="metric-box">
-                  <span>Budget Utilization</span>
-                  <strong className="green">Live</strong>
-                </div>
-
-                <div className="metric-box">
-                  <span>Active Crew</span>
-                  <strong>Live</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="dashboard-card admin-card">
-              <h3>Administrator Dashboard</h3>
-              <p>Core System Telemetry</p>
-
-              <div className="admin-list">
-                <div>
-                  <span>Global Users</span>
-                  <strong>Live count</strong>
-                  <Check size={16} />
-                </div>
-
-                <div>
-                  <span>Active Projects</span>
-                  <strong>Live count</strong>
-                  <Check size={16} />
-                </div>
-
-                <div>
-                  <span>Daily Activity Stream</span>
-                  <strong>Live feed</strong>
-                  <Check size={16} />
-                </div>
-
-                <div>
-                  <span>Active API Webhooks</span>
-                  <strong>Live status</strong>
-                  <Check size={16} />
-                </div>
-              </div>
-            </div>
-          </div>
+          <CommandCenter />
         </div>
       </section>
 

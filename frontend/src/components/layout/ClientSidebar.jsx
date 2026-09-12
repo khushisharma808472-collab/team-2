@@ -113,5 +113,8 @@ function ClientSidebar() {
   );
 }
 
+/* eslint-disable-next-line react-refresh/only-export-components */
+export { menuItems as clientMenu };
+
 export default ClientSidebar;
 

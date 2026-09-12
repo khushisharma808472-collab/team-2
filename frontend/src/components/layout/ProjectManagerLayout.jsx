@@ -1,18 +1,61 @@
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import ProjectManagerSidebar from "./ProjectManagerSidebar";
-import ProjectManagerHeader from "./ProjectManagerHeader";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import { projectManagerMenu } from "./ProjectManagerSidebar";
+import "../../styles/dashboard.css";
+import "../../styles/roleDashboards.css";
 import "../../styles/projectManagerDashboard.css";
 
 function ProjectManagerLayout() {
+  // Desktop: collapsed (icon-only) vs expanded. Mobile: drawer closed vs open.
+  const [collapsed, setCollapsed] = useState(
+    () => window.matchMedia("(max-width: 1023px)").matches
+  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Marks this layout so the floating theme pill is hidden (the header
+  // hosts the shared ThemeSwitcher instead).
+  useEffect(() => {
+    document.body.classList.add("admin-scope");
+    return () => document.body.classList.remove("admin-scope");
+  }, []);
+
+  // Close the mobile drawer when the viewport grows back to desktop.
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setDrawerOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (window.innerWidth < 768) {
+      setDrawerOpen((open) => !open);
+    } else {
+      setCollapsed((value) => !value);
+    }
+  };
+
   return (
-    <div className="pm-dashboard-layout">
-      <ProjectManagerSidebar />
-      <div className="pm-main-section">
-        <ProjectManagerHeader />
-        <main className="pm-dashboard-content">
+    <div className="dashboard-layout layout-toggled">
+      <Sidebar
+        menu={projectManagerMenu}
+        collapsed={collapsed}
+        drawerOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      />
+      <main className="dashboard-main">
+        <Header
+          title="Project Manager Dashboard"
+          onToggleSidebar={toggleSidebar}
+          showTheme
+        />
+        <div className="dashboard-content">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

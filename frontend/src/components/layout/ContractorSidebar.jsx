@@ -113,5 +113,8 @@ function ContractorSidebar() {
   );
 }
 
+/* eslint-disable-next-line react-refresh/only-export-components */
+export { menuItems as contractorMenu };
+
 export default ContractorSidebar;
 
