@@ -13,6 +13,7 @@ function PMProjects() {
     name: "",
     client: "",
     budget: "",
+    spent: "₹ 0.0 Cr",
     status: "On Track",
     progress: 0,
     endDate: "",
@@ -44,6 +45,7 @@ function PMProjects() {
       name: "",
       client: "",
       budget: "",
+      spent: "₹ 0.0 Cr",
       status: "On Track",
       progress: 0,
       endDate: "",
@@ -54,12 +56,13 @@ function PMProjects() {
   const handleOpenEdit = (p) => {
     setEditingProject(p);
     setFormData({
-      name: p.name,
-      client: p.client,
-      budget: p.budget,
-      status: p.status,
-      progress: p.progress,
-      endDate: p.endDate,
+      name: p.name || "",
+      client: p.client || "",
+      budget: p.budget || "",
+      spent: p.spent || "₹ 0.0 Cr",
+      status: p.status || "On Track",
+      progress: p.progress || 0,
+      endDate: p.endDate || "",
     });
     setShowModal(true);
   };
@@ -68,7 +71,37 @@ function PMProjects() {
     e.preventDefault();
     try {
       if (editingProject) {
-        await API.put(`/projects/${editingProject._id}`, formData);
+        let formattedSpent = (formData.spent !== undefined && formData.spent !== null)
+          ? String(formData.spent).trim()
+          : "";
+
+        const cleaned = formattedSpent
+          .replace(/₹/g, "")
+          .replace(/,/g, "")
+          .replace(/\s+/g, "")
+          .replace(/crore/gi, "")
+          .replace(/cr/gi, "")
+          .trim();
+
+        const num = parseFloat(cleaned);
+        if (cleaned === "" || isNaN(num)) {
+          alert("Please enter a valid numeric amount for Spent Budget.");
+          return;
+        }
+
+        if (num < 0) {
+          alert("Spent budget cannot be negative.");
+          return;
+        }
+
+        const finalSpent = `₹ ${num % 1 === 0 ? num.toFixed(1) : Number(num.toFixed(2))} Cr`;
+
+        const payload = {
+          ...formData,
+          spent: finalSpent,
+        };
+
+        await API.put(`/projects/${editingProject._id}`, payload);
       } else {
         await API.post("/projects", formData);
       }
@@ -228,42 +261,97 @@ function PMProjects() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                <div>
-                  <label style={{ fontSize: "11px", color: "#64748b" }}>Budget</label>
-                  <input
-                    type="text"
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                    style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: "11px", color: "#64748b" }}>Progress %</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={formData.progress}
-                    onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })}
-                    style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
-                  />
-                </div>
-              </div>
+              {editingProject ? (
+                <>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                    <div>
+                      <label style={{ fontSize: "11px", color: "#64748b" }}>Budget</label>
+                      <input
+                        type="text"
+                        value={formData.budget}
+                        onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                        style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "11px", color: "#64748b" }}>Spent Budget</label>
+                      <input
+                        type="text"
+                        value={formData.spent}
+                        onChange={(e) => setFormData({ ...formData, spent: e.target.value })}
+                        placeholder="e.g. ₹ 5.0 Cr"
+                        style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label style={{ fontSize: "11px", color: "#64748b" }}>Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
-                >
-                  <option value="On Track">On Track</option>
-                  <option value="Delayed">Delayed</option>
-                  <option value="At Risk">At Risk</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                    <div>
+                      <label style={{ fontSize: "11px", color: "#64748b" }}>Progress %</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.progress}
+                        onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })}
+                        style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "11px", color: "#64748b" }}>Status</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                      >
+                        <option value="On Track">On Track</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="At Risk">At Risk</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                    <div>
+                      <label style={{ fontSize: "11px", color: "#64748b" }}>Budget</label>
+                      <input
+                        type="text"
+                        value={formData.budget}
+                        onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                        style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: "11px", color: "#64748b" }}>Progress %</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.progress}
+                        onChange={(e) => setFormData({ ...formData, progress: Number(e.target.value) })}
+                        style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "11px", color: "#64748b" }}>Status</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      style={{ width: "100%", padding: "8px", border: "1px solid #e2e8f0", borderRadius: "6px" }}
+                    >
+                      <option value="On Track">On Track</option>
+                      <option value="Delayed">Delayed</option>
+                      <option value="At Risk">At Risk</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                </>
+              )}
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "8px" }}>
                 <button type="button" className="date-button" onClick={() => setShowModal(false)}>

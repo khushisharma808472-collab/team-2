@@ -11,7 +11,13 @@ const parseAmount = parseAmountToCrores;
 
 const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find()
+    let query = {};
+
+    if (req.user && req.user.role === "project_manager") {
+      query.manager = req.user.name;
+    }
+
+    const projects = await Project.find(query)
       .sort({ updatedAt: -1 });
 
     res.status(200).json({
@@ -102,7 +108,7 @@ const createProject = async (req, res) => {
         "Project Manager",
       location,
       budget,
-      spent,
+      spent: spent || "₹ 0.0 Cr",
       status,
       progress,
       startDate,

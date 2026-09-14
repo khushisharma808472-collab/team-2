@@ -36,7 +36,7 @@ const projectSchema = new mongoose.Schema(
     },
     spent: {
       type: String,
-      default: "₹ 8.5 Cr",
+      default: "₹ 0.0 Cr",
     },
     status: {
       type: String,

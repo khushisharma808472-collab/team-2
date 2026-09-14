@@ -86,11 +86,26 @@ function BudgetUtilization({ data }) {
   useEffect(() => {
     // If dashboard data was passed via props, use it directly
     if (data && typeof data === "object" && Object.keys(data).length > 0) {
+      const totalBudget = Number(data.totalBudget) || 0;
+      const totalSpent = Number(data.totalSpent ?? data.usedBudget) || 0;
+      const remaining =
+        typeof data.remainingBudget === "number"
+          ? data.remainingBudget
+          : Math.max(totalBudget - totalSpent, 0);
+
+      let utilization = 0;
+      if (totalBudget > 0) {
+        // Calculate utilization as: (usedBudget / totalBudget) * 100
+        const calculated = Math.round((totalSpent / totalBudget) * 100);
+        // Ensure displayed percentage cannot become nonsensical because of unit conversion (cap between 0% and 100%)
+        utilization = Math.min(Math.max(calculated, 0), 100);
+      }
+
       setBudgetData({
-        totalBudget: data.totalBudget ?? 0,
-        totalSpent: data.totalSpent ?? 0,
-        remaining: data.remainingBudget ?? Math.max((data.totalBudget ?? 0) - (data.totalSpent ?? 0), 0),
-        utilization: data.budgetUtilization ?? 0,
+        totalBudget,
+        totalSpent,
+        remaining,
+        utilization,
       });
       setLoading(false);
       return;
