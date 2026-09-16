@@ -8,6 +8,7 @@ import ProjectProgress from "../../components/projectManager/ProjectProgress";
 import BudgetUtilization from "../../components/projectManager/BudgetUtilization";
 import WorkforceTradeAllocation from "../../components/contractor/WorkforceTradeAllocation";
 import EquipmentStatusWidget from "../../components/siteEngineer/EquipmentStatusWidget";
+import MaterialRequestsWidget from "../../components/contractor/MaterialRequestsWidget";
 
 import api from "../../services/api";
 
@@ -15,6 +16,7 @@ function ProjectManagerDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [attendanceData, setAttendanceData] = useState([]);
   const [equipmentData, setEquipmentData] = useState([]);
+  const [materialData, setMaterialData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const getUserName = () => {
@@ -37,10 +39,11 @@ function ProjectManagerDashboard() {
       try {
         setLoading(true);
 
-        const [dashRes, attRes, eqRes] = await Promise.allSettled([
+        const [dashRes, attRes, eqRes, matRes] = await Promise.allSettled([
           api.get("/projects/dashboard"),
           api.get("/attendance"),
           api.get("/equipment"),
+          api.get("/materials"),
         ]);
 
         if (dashRes.status === "fulfilled" && dashRes.value?.data?.success) {
@@ -67,6 +70,15 @@ function ProjectManagerDashboard() {
           console.error(
             "Failed to fetch equipment for PM dashboard:",
             eqRes.reason?.response?.data || eqRes.reason?.message
+          );
+        }
+
+        if (matRes.status === "fulfilled" && matRes.value?.data?.data) {
+          setMaterialData(matRes.value.data.data);
+        } else if (matRes.status === "rejected") {
+          console.error(
+            "Failed to fetch materials for PM dashboard:",
+            matRes.reason?.response?.data || matRes.reason?.message
           );
         }
       } catch (error) {
@@ -611,6 +623,47 @@ function ProjectManagerDashboard() {
                 </Link>
               </div>
             </div>
+          </div>
+
+          {/* Procurement Overview Section */}
+          <div className="pm-section-header" style={{ marginTop: "32px", marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+                flexWrap: "wrap",
+                gap: "8px",
+              }}
+            >
+              <div>
+                <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#1e293b", margin: 0 }}>
+                  Procurement Overview
+                </h2>
+                <p style={{ fontSize: "13px", color: "#64748b", margin: "4px 0 0" }}>
+                  Latest material requisitions across all active project sites.
+                </p>
+              </div>
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: "#475569",
+                  background: "#f1f5f9",
+                  border: "1px solid #e2e8f0",
+                  padding: "4px 10px",
+                  borderRadius: "12px",
+                  fontWeight: 600,
+                }}
+                title="Material requests are aggregated site-wide"
+              >
+                Site-Wide Procurement
+              </span>
+            </div>
+          </div>
+
+          <div className="pm-charts-grid" style={{ marginBottom: "32px" }}>
+            <MaterialRequestsWidget requests={materialData} />
+            <div />
           </div>
         </>
       )}
