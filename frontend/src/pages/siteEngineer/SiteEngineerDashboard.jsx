@@ -110,10 +110,17 @@ function SiteEngineerDashboard() {
       {/* MAIN WIDGETS GRID */}
       <div className="dashboard-grid role-grid">
         {/* 1. Progress by Construction Phase */}
-        <SiteProgressCategories />
+        <SiteProgressCategories 
+          milestones={dashboardData?.milestones || []}
+          loading={loading}
+        />
 
         {/* 2. Delay & Milestone Tracker */}
-        <SiteDelayTracker />
+        <SiteDelayTracker 
+          milestones={dashboardData?.milestones || []}
+          activeDelays={stats.activeDelays || 0}
+          loading={loading}
+        />
 
         {/* 3. Site Activity & Inspection Logs */}
         <SiteActivityLogs logs={dashboardData?.recentActivities || []} />

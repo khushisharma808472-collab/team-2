@@ -1,37 +1,6 @@
-import { useEffect, useState } from "react";
 import { Layers } from "lucide-react";
-import api from "../../services/api";
 
-function SiteProgressCategories() {
-  const [milestones, setMilestones] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSiteProgress = async () => {
-      try {
-        setLoading(true);
-
-        const response = await api.get(
-          "/admin/site-progress"
-        );
-
-        if (response.data.success) {
-          setMilestones(
-            response.data.milestones || []
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Failed to fetch site progress:",
-          error.response?.data || error.message
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSiteProgress();
-  }, []);
+function SiteProgressCategories({ milestones = [], loading = false }) {
 
   const getStatus = (milestone) => {
     const progress = milestone.progress || 0;

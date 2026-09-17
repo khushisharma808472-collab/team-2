@@ -1,88 +1,10 @@
 import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
   AlertTriangle,
   CheckCircle2,
   Clock,
 } from "lucide-react";
 
-import api from "../../services/api";
-
-function SiteDelayTracker() {
-
-  const [milestones, setMilestones] =
-    useState([]);
-
-  const [activeDelays, setActiveDelays] =
-    useState(0);
-
-  const [loading, setLoading] =
-    useState(true);
-
-
-  useEffect(() => {
-
-    const fetchDelayData =
-      async () => {
-
-        try {
-
-          setLoading(true);
-
-          const response =
-            await api.get(
-              "/admin/site-progress"
-            );
-
-
-          if (
-            response.data.success
-          ) {
-
-            /*
-            IMPORTANT:
-            delayedMilestones sirf delayed
-            items deta hai.
-
-            Lekin screenshot jaisa
-            full milestone tracker chahiye,
-            isliye milestones use karenge.
-            */
-
-            setMilestones(
-              response.data.milestones || []
-            );
-
-            setActiveDelays(
-              response.data.stats
-                ?.activeDelays || 0
-            );
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "Failed to fetch delay tracker:",
-            error.response?.data ||
-              error.message
-          );
-
-        } finally {
-
-          setLoading(false);
-
-        }
-
-      };
-
-
-    fetchDelayData();
-
-  }, []);
+function SiteDelayTracker({ milestones = [], activeDelays = 0, loading = false }) {
 
 
   const getMilestoneInfo =
