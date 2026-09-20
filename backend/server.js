@@ -21,6 +21,7 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const vendorRoutes = require("./routes/vendorRoutes");
 const seedInitialData = require("./config/seedData");
 
 const app = express();
@@ -58,6 +59,9 @@ app.use("/api/admin", adminRoutes);
 // Role Dashboards
 app.use("/api/dashboard", dashboardRoutes);
 
+const purchaseOrderRoutes = require("./routes/purchaseOrderRoutes");
+const invoiceRoutes = require("./routes/invoiceRoutes");
+
 // Feature Modules
 app.use("/api/projects", projectRoutes);
 app.use("/api/materials", materialRequestRoutes);
@@ -68,8 +72,11 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/vendors", vendorRoutes);
+app.use("/api/purchase-orders", purchaseOrderRoutes);
+app.use("/api/invoices", invoiceRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
